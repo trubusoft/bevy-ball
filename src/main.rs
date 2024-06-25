@@ -36,12 +36,12 @@ fn spawn_player(
 ) {
     let window = window_query.get_single().unwrap();
     commands.spawn((
+        Player {},
         SpriteBundle {
             transform: WindowHelper::center(window),
             texture: asset_server.load("sprites/ball_blue_large.png"),
             ..default()
         },
-        Player {},
     ));
 }
 
