@@ -1,6 +1,7 @@
 use bevy::input::ButtonInput;
 use bevy::math::Vec3;
 use bevy::prelude::{KeyCode, Res, Transform, Window};
+use rand::random;
 
 pub struct WindowHelper {}
 
@@ -64,5 +65,13 @@ impl MovementHelper {
         }
 
         new_translation
+    }
+}
+
+pub struct RandomHelper {}
+
+impl RandomHelper {
+    pub fn random_f32() -> f32 {
+        random::<f32>()
     }
 }
