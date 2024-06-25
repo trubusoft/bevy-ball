@@ -15,6 +15,14 @@ fn main() {
         .run();
 }
 
+fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
+    let window = window_query.get_single().unwrap();
+    commands.spawn(Camera2dBundle {
+        transform: WindowHelper::center(window),
+        ..default()
+    });
+}
+
 #[derive(Component)]
 struct Player {}
 
@@ -32,12 +40,4 @@ fn spawn_player(
         },
         Player {},
     ));
-}
-
-fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
-    let window = window_query.get_single().unwrap();
-    commands.spawn(Camera2dBundle {
-        transform: WindowHelper::center(window),
-        ..default()
-    });
 }
