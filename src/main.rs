@@ -5,7 +5,7 @@ use bevy::prelude::{
 };
 use bevy::window::PrimaryWindow;
 
-use bevy_ball::{MovementHelper, WindowHelper};
+use bevy_ball::{MovementHelper, RandomHelper, WindowHelper};
 
 fn main() {
     App::new()
@@ -14,6 +14,7 @@ fn main() {
         .add_systems(Startup, spawn_player)
         .add_systems(Update, player_movement)
         .add_systems(Update, confine_player_movement)
+        .add_systems(Startup, spawn_enemies)
         .run();
 }
 
@@ -67,5 +68,31 @@ fn confine_player_movement(
         let confined_translation =
             MovementHelper::confine(window, player_transform.translation, PLAYER_SIZE);
         player_transform.translation = confined_translation;
+    }
+}
+
+const NUMBER_OF_ENEMIES: usize = 4;
+
+#[derive(Component)]
+struct Enemy {}
+
+fn spawn_enemies(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+) {
+    let window = window_query.get_single().unwrap();
+    for _ in 0..NUMBER_OF_ENEMIES {
+        let random_x = RandomHelper::random_f32() * window.width();
+        let random_y = RandomHelper::random_f32() * window.height();
+
+        commands.spawn((
+            Enemy {},
+            SpriteBundle {
+                transform: Transform::from_xyz(random_x, random_y, 0.0),
+                texture: asset_server.load("sprites/ball_red_large.png"),
+                ..default()
+            },
+        ));
     }
 }
