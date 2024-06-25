@@ -17,6 +17,7 @@ fn main() {
         .add_systems(Update, confine_player_movement)
         .add_systems(Startup, spawn_enemies)
         .add_systems(Update, enemy_movement)
+        .add_systems(Update, confine_enemy_movement)
         .add_systems(Update, update_enemy_direction)
         .run();
 }
@@ -133,11 +134,23 @@ fn update_enemy_direction(
 
         let new_translation = enemy_transform.translation;
 
-        if new_translation.x < x_min || new_translation.x > x_max {
+        if new_translation.x <= x_min || new_translation.x >= x_max {
             enemy.direction.x *= -1.0;
         }
-        if new_translation.y < y_min || new_translation.y > y_max {
+        if new_translation.y <= y_min || new_translation.y >= y_max {
             enemy.direction.y *= -1.0;
         }
+    }
+}
+
+fn confine_enemy_movement(
+    mut enemy_query: Query<&mut Transform, With<Enemy>>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+) {
+    if let Ok(mut enemy_transform) = enemy_query.get_single_mut() {
+        let window = window_query.get_single().unwrap();
+        let confined_translation =
+            MovementHelper::confine(window, enemy_transform.translation, ENEMY_SIZE);
+        enemy_transform.translation = confined_translation;
     }
 }
