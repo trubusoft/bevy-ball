@@ -17,6 +17,7 @@ fn main() {
         .add_systems(Update, confine_player_movement)
         .add_systems(Startup, spawn_enemies)
         .add_systems(Update, enemy_movement)
+        .add_systems(Update, update_enemy_direction)
         .run();
 }
 
@@ -75,6 +76,7 @@ fn confine_player_movement(
 
 const NUMBER_OF_ENEMIES: usize = 4;
 const ENEMY_SPEED: f32 = 200.0;
+const ENEMY_SIZE: f32 = 64.0;
 
 #[derive(Component)]
 struct Enemy {
@@ -114,5 +116,28 @@ fn enemy_movement(mut enemy_query: Query<(&mut Transform, &Enemy)>, time: Res<Ti
     for (mut enemy_transform, enemy) in enemy_query.iter_mut() {
         let enemy_direction = enemy.direction;
         enemy_transform.translation += enemy_direction * ENEMY_SPEED * time.delta_seconds();
+    }
+}
+
+fn update_enemy_direction(
+    mut enemy_query: Query<(&Transform, &mut Enemy)>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+) {
+    let window = window_query.get_single().unwrap();
+    for (enemy_transform, mut enemy) in enemy_query.iter_mut() {
+        let half_unit_size = ENEMY_SIZE / 2.0;
+        let x_min = 0.0 + half_unit_size;
+        let x_max = window.width() - half_unit_size;
+        let y_min = 0.0 + half_unit_size;
+        let y_max = window.height() - half_unit_size;
+
+        let new_translation = enemy_transform.translation;
+
+        if new_translation.x < x_min || new_translation.x > x_max {
+            enemy.direction.x *= -1.0;
+        }
+        if new_translation.y < y_min || new_translation.y > y_max {
+            enemy.direction.y *= -1.0;
+        }
     }
 }
