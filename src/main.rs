@@ -1,12 +1,13 @@
 use bevy::DefaultPlugins;
 use bevy::math::Vec3;
 use bevy::prelude::{
-    App, AssetServer, ButtonInput, Camera2dBundle, Commands, Component, default, KeyCode, Query,
-    Res, SpriteBundle, Startup, Time, Transform, Update, Window, With,
+    App, AssetServer, AudioBundle, ButtonInput, Camera2dBundle, Commands, Component, default,
+    KeyCode, PlaybackSettings, Query, Res, SpriteBundle, Startup, Time, Transform, Update, Window,
+    With,
 };
 use bevy::window::PrimaryWindow;
 
-use bevy_ball::{MovementHelper, RandomHelper, WindowHelper};
+use bevy_ball::{MovementHelper, RandomHelper, SoundHelper, WindowHelper};
 
 fn main() {
     App::new()
@@ -121,8 +122,10 @@ fn enemy_movement(mut enemy_query: Query<(&mut Transform, &Enemy)>, time: Res<Ti
 }
 
 fn update_enemy_direction(
+    mut commands: Commands,
     mut enemy_query: Query<(&Transform, &mut Enemy)>,
     window_query: Query<&Window, With<PrimaryWindow>>,
+    asset_server: Res<AssetServer>,
 ) {
     let window = window_query.get_single().unwrap();
     for (enemy_transform, mut enemy) in enemy_query.iter_mut() {
@@ -133,12 +136,23 @@ fn update_enemy_direction(
         let y_max = window.height() - half_unit_size;
 
         let new_translation = enemy_transform.translation;
+        let mut is_direction_changed: bool = false;
 
         if new_translation.x <= x_min || new_translation.x >= x_max {
             enemy.direction.x *= -1.0;
+            is_direction_changed = true;
         }
         if new_translation.y <= y_min || new_translation.y >= y_max {
             enemy.direction.y *= -1.0;
+            is_direction_changed = true;
+        }
+
+        if is_direction_changed {
+            // play sound
+            commands.spawn(AudioBundle {
+                source: asset_server.load(SoundHelper::get_random_pluck_sound_file()),
+                settings: PlaybackSettings::DESPAWN,
+            });
         }
     }
 }

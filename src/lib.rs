@@ -75,3 +75,15 @@ impl RandomHelper {
         random::<f32>()
     }
 }
+
+pub struct SoundHelper {}
+
+impl SoundHelper {
+    pub fn get_random_pluck_sound_file() -> String {
+        if RandomHelper::random_f32() < 0.5 {
+            return "audio/pluck_001.ogg".to_string();
+        } else {
+            return "audio/pluck_002.ogg".to_string();
+        }
+    }
+}
