@@ -39,4 +39,30 @@ impl MovementHelper {
 
         return direction;
     }
+
+    pub fn confine(window: &Window, unit_translation: Vec3, unit_size: f32) -> Vec3 {
+        let half_unit_size = unit_size / 2.0;
+        let x_min = 0.0 + half_unit_size;
+        let x_max = window.width() - half_unit_size;
+        let y_min = 0.0 + half_unit_size;
+        let y_max = window.height() - half_unit_size;
+
+        let mut new_translation = unit_translation;
+
+        // bound x
+        if new_translation.x < x_min {
+            new_translation.x = x_min;
+        } else if new_translation.x > x_max {
+            new_translation.x = x_max;
+        }
+
+        // bound y
+        if new_translation.y < y_min {
+            new_translation.y = y_min;
+        } else if new_translation.y > y_max {
+            new_translation.y = y_max;
+        }
+
+        new_translation
+    }
 }

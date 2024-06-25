@@ -13,6 +13,7 @@ fn main() {
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, spawn_player)
         .add_systems(Update, player_movement)
+        .add_systems(Update, confine_player_movement)
         .run();
 }
 
@@ -44,6 +45,7 @@ fn spawn_player(
 }
 
 const PLAYER_SPEED: f32 = 500.0;
+const PLAYER_SIZE: f32 = 64.0;
 
 fn player_movement(
     keyboard_input: Res<ButtonInput<KeyCode>>,
@@ -53,5 +55,17 @@ fn player_movement(
     if let Ok(mut transform) = player_query.get_single_mut() {
         let movement_direction = MovementHelper::handle_input(keyboard_input);
         transform.translation += movement_direction * PLAYER_SPEED * time.delta_seconds();
+    }
+}
+
+fn confine_player_movement(
+    mut player_query: Query<&mut Transform, With<Player>>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+) {
+    if let Ok(mut player_transform) = player_query.get_single_mut() {
+        let window = window_query.get_single().unwrap();
+        let confined_translation =
+            MovementHelper::confine(window, player_transform.translation, PLAYER_SIZE);
+        player_transform.translation = confined_translation;
     }
 }
