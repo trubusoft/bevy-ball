@@ -1,4 +1,5 @@
 use bevy::DefaultPlugins;
+use bevy::math::Vec3;
 use bevy::prelude::{
     App, AssetServer, ButtonInput, Camera2dBundle, Commands, Component, default, KeyCode, Query,
     Res, SpriteBundle, Startup, Time, Transform, Update, Window, With,
@@ -15,6 +16,7 @@ fn main() {
         .add_systems(Update, player_movement)
         .add_systems(Update, confine_player_movement)
         .add_systems(Startup, spawn_enemies)
+        .add_systems(Update, enemy_movement)
         .run();
 }
 
@@ -72,9 +74,18 @@ fn confine_player_movement(
 }
 
 const NUMBER_OF_ENEMIES: usize = 4;
+const ENEMY_SPEED: f32 = 200.0;
 
 #[derive(Component)]
-struct Enemy {}
+struct Enemy {
+    pub direction: Vec3,
+}
+
+impl Enemy {
+    fn randomize_direction() -> Vec3 {
+        Vec3::new(RandomHelper::random_f32(), RandomHelper::random_f32(), 0.0).normalize()
+    }
+}
 
 fn spawn_enemies(
     mut commands: Commands,
@@ -87,12 +98,21 @@ fn spawn_enemies(
         let random_y = RandomHelper::random_f32() * window.height();
 
         commands.spawn((
-            Enemy {},
+            Enemy {
+                direction: Enemy::randomize_direction(),
+            },
             SpriteBundle {
                 transform: Transform::from_xyz(random_x, random_y, 0.0),
                 texture: asset_server.load("sprites/ball_red_large.png"),
                 ..default()
             },
         ));
+    }
+}
+
+fn enemy_movement(mut enemy_query: Query<(&mut Transform, &Enemy)>, time: Res<Time>) {
+    for (mut enemy_transform, enemy) in enemy_query.iter_mut() {
+        let enemy_direction = enemy.direction;
+        enemy_transform.translation += enemy_direction * ENEMY_SPEED * time.delta_seconds();
     }
 }
