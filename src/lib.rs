@@ -86,4 +86,8 @@ impl SoundHelper {
             "audio/pluck_002.ogg".to_string()
         };
     }
+
+    pub fn get_game_over_sound() -> String {
+        "audio/explosionCrunch_000.ogg".to_string()
+    }
 }

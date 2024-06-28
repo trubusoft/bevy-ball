@@ -2,8 +2,8 @@ use bevy::DefaultPlugins;
 use bevy::math::Vec3;
 use bevy::prelude::{
     App, AssetServer, AudioBundle, ButtonInput, Camera2dBundle, Commands, Component, default,
-    KeyCode, PlaybackSettings, Query, Res, SpriteBundle, Startup, Time, Transform, Update, Window,
-    With,
+    Entity, KeyCode, PlaybackSettings, Query, Res, SpriteBundle, Startup, Time, Transform, Update,
+    Window, With,
 };
 use bevy::window::PrimaryWindow;
 
@@ -20,6 +20,7 @@ fn main() {
         .add_systems(Update, enemy_movement)
         .add_systems(Update, confine_enemy_movement)
         .add_systems(Update, update_enemy_direction)
+        .add_systems(Update, player_despawn_when_hit)
         .run();
 }
 
@@ -166,5 +167,30 @@ fn confine_enemy_movement(
         let confined_translation =
             MovementHelper::confine(window, enemy_transform.translation, ENEMY_SIZE);
         enemy_transform.translation = confined_translation;
+    }
+}
+
+fn player_despawn_when_hit(
+    mut commands: Commands,
+    mut player_query: Query<(Entity, &Transform), With<Player>>,
+    enemy_query: Query<&Transform, With<Enemy>>,
+    asset_server: Res<AssetServer>,
+) {
+    if let Ok((player_entity, player_transform)) = player_query.get_single_mut() {
+        for enemy_transform in enemy_query.iter() {
+            let player_radius = PLAYER_SIZE / 2.0;
+            let enemy_radus = ENEMY_SIZE / 2.0;
+            let actual_distance = player_transform
+                .translation
+                .distance(enemy_transform.translation);
+
+            if actual_distance <= (player_radius + enemy_radus) {
+                commands.spawn(AudioBundle {
+                    source: asset_server.load(SoundHelper::get_game_over_sound()),
+                    settings: PlaybackSettings::DESPAWN,
+                });
+                commands.entity(player_entity).despawn();
+            }
+        }
     }
 }
