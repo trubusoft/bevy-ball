@@ -3,8 +3,9 @@ use bevy::DefaultPlugins;
 use bevy::math::Vec3;
 use bevy::prelude::{
     App, AssetServer, AudioBundle, ButtonInput, Camera2dBundle, Commands, Component, default,
-    DetectChanges, Entity, EventWriter, KeyCode, PlaybackSettings, Query, Res, ResMut, Resource,
-    SpriteBundle, Startup, Time, Timer, TimerMode, Transform, Update, Window, With,
+    DetectChanges, Entity, Event, EventReader, EventWriter, KeyCode, PlaybackSettings, Query, Res,
+    ResMut, Resource, SpriteBundle, Startup, Time, Timer, TimerMode, Transform, Update, Window,
+    With,
 };
 use bevy::window::PrimaryWindow;
 
@@ -21,7 +22,7 @@ fn main() {
         .add_systems(Update, enemy_movement)
         .add_systems(Update, confine_enemy_movement)
         .add_systems(Update, update_enemy_direction)
-        .add_systems(Update, player_despawn_when_hit)
+        .add_systems(Update, player_hit_enemy)
         .add_systems(Startup, spawn_stars)
         .add_systems(Update, player_hit_star)
         .init_resource::<Score>()
@@ -33,6 +34,8 @@ fn main() {
         .add_systems(Update, tick_spawn_enemy_timer)
         .add_systems(Update, spawn_enemy_overtime)
         .add_systems(Update, exit_on_escape)
+        .add_event::<GameOver>()
+        .add_systems(Update, handle_game_over_event)
         .run();
 }
 
@@ -181,11 +184,13 @@ fn confine_enemy_movement(
     }
 }
 
-fn player_despawn_when_hit(
+fn player_hit_enemy(
     mut commands: Commands,
     mut player_query: Query<(Entity, &Transform), With<Player>>,
     enemy_query: Query<&Transform, With<Enemy>>,
     asset_server: Res<AssetServer>,
+    mut game_over_event_writter: EventWriter<GameOver>,
+    score: Res<Score>,
 ) {
     if let Ok((player_entity, player_transform)) = player_query.get_single_mut() {
         for enemy_transform in enemy_query.iter() {
@@ -201,6 +206,7 @@ fn player_despawn_when_hit(
                     settings: PlaybackSettings::DESPAWN,
                 });
                 commands.entity(player_entity).despawn();
+                game_over_event_writter.send(GameOver { score: score.value });
             }
         }
     }
@@ -369,5 +375,16 @@ fn exit_on_escape(
 ) {
     if keyboard_input.pressed(KeyCode::Escape) {
         event_writter.send(AppExit);
+    }
+}
+
+#[derive(Event)]
+struct GameOver {
+    pub score: u32,
+}
+
+fn handle_game_over_event(mut event_reader: EventReader<GameOver>) {
+    for event in event_reader.read() {
+        println!("Your final score is: {}", event.score)
     }
 }
