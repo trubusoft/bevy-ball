@@ -1,9 +1,10 @@
+use bevy::app::AppExit;
 use bevy::DefaultPlugins;
 use bevy::math::Vec3;
 use bevy::prelude::{
     App, AssetServer, AudioBundle, ButtonInput, Camera2dBundle, Commands, Component, default,
-    DetectChanges, Entity, KeyCode, PlaybackSettings, Query, Res, ResMut, Resource, SpriteBundle,
-    Startup, Time, Timer, TimerMode, Transform, Update, Window, With,
+    DetectChanges, Entity, EventWriter, KeyCode, PlaybackSettings, Query, Res, ResMut, Resource,
+    SpriteBundle, Startup, Time, Timer, TimerMode, Transform, Update, Window, With,
 };
 use bevy::window::PrimaryWindow;
 
@@ -31,6 +32,7 @@ fn main() {
         .init_resource::<EnemySpawnTimer>()
         .add_systems(Update, tick_spawn_enemy_timer)
         .add_systems(Update, spawn_enemy_overtime)
+        .add_systems(Update, exit_on_escape)
         .run();
 }
 
@@ -358,5 +360,14 @@ fn spawn_enemy_overtime(
                 ..default()
             },
         ));
+    }
+}
+
+fn exit_on_escape(
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut event_writter: EventWriter<AppExit>,
+) {
+    if keyboard_input.pressed(KeyCode::Escape) {
+        event_writter.send(AppExit);
     }
 }
