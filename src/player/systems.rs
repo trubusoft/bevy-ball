@@ -62,13 +62,14 @@ pub fn on_player_hit_enemy(
 ) {
     if let Ok((player_entity, player_transform)) = player_query.get_single_mut() {
         for enemy_transform in enemy_query.iter() {
-            let player_radius = PLAYER_SIZE / 2.0;
-            let enemy_radius = ENEMY_SIZE / 2.0;
-            let actual_distance = player_transform
-                .translation
-                .distance(enemy_transform.translation);
+            let is_collided = MovementHelper::is_collided(
+                PLAYER_SIZE,
+                player_transform.translation,
+                ENEMY_SIZE,
+                enemy_transform.translation,
+            );
 
-            if actual_distance <= (player_radius + enemy_radius) {
+            if is_collided {
                 commands.spawn(AudioHelper::play_game_over_sound(&asset_server));
                 commands.entity(player_entity).despawn();
                 game_over_event_writter.send(GameOver { score: score.value });
@@ -86,13 +87,14 @@ pub fn on_player_hit_star(
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for (star_entity, star_transform) in star_query.iter() {
-            let player_radius = PLAYER_SIZE / 2.0;
-            let star_radius = STAR_SIZE / 2.0;
-            let actual_distance = player_transform
-                .translation
-                .distance(star_transform.translation);
+            let is_collided = MovementHelper::is_collided(
+                PLAYER_SIZE,
+                player_transform.translation,
+                STAR_SIZE,
+                star_transform.translation,
+            );
 
-            if actual_distance <= (player_radius + star_radius) {
+            if is_collided {
                 commands.spawn(AudioHelper::play_obtain_star_sound(&asset_server));
                 commands.entity(star_entity).despawn();
                 score.value += 1;

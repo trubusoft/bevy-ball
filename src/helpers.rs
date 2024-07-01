@@ -68,6 +68,19 @@ impl MovementHelper {
 
         new_translation
     }
+
+    pub fn is_collided(
+        first_size: f32,
+        first_transform: Vec3,
+        second_size: f32,
+        second_transform: Vec3,
+    ) -> bool {
+        let first_length = first_size / 2.0;
+        let second_length = second_size / 2.0;
+        let distance_between_them = first_transform.distance(second_transform);
+
+        distance_between_them <= (first_length + second_length)
+    }
 }
 
 pub struct RandomHelper {}
