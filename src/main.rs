@@ -3,7 +3,7 @@ use bevy::math::Vec3;
 use bevy::prelude::{
     App, AssetServer, AudioBundle, ButtonInput, Camera2dBundle, Commands, Component, default,
     DetectChanges, Entity, KeyCode, PlaybackSettings, Query, Res, ResMut, Resource, SpriteBundle,
-    Startup, Time, Transform, Update, Window, With,
+    Startup, Time, Timer, TimerMode, Transform, Update, Window, With,
 };
 use bevy::window::PrimaryWindow;
 
@@ -12,7 +12,6 @@ use bevy_ball::{MovementHelper, RandomHelper, SoundHelper, WindowHelper};
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .init_resource::<Score>()
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, spawn_player)
         .add_systems(Update, player_movement)
@@ -24,7 +23,11 @@ fn main() {
         .add_systems(Update, player_despawn_when_hit)
         .add_systems(Startup, spawn_stars)
         .add_systems(Update, player_hit_star)
+        .init_resource::<Score>()
         .add_systems(Update, print_score_on_change)
+        .init_resource::<StarSpawnTimer>()
+        .add_systems(Update, tick_spawn_star_timer)
+        .add_systems(Update, spawn_stars_overtime)
         .run();
 }
 
@@ -267,5 +270,47 @@ impl Default for Score {
 fn print_score_on_change(score: Res<Score>) {
     if score.is_changed() {
         println!("Score updated: {}", score.value);
+    }
+}
+
+const STAR_SPAWN_TIME: f32 = 1.0;
+
+#[derive(Resource)]
+struct StarSpawnTimer {
+    timer: Timer,
+}
+
+impl Default for StarSpawnTimer {
+    fn default() -> Self {
+        Self {
+            timer: Timer::from_seconds(STAR_SPAWN_TIME, TimerMode::Repeating),
+        }
+    }
+}
+
+fn tick_spawn_star_timer(time: Res<Time>, mut star_spawn_timer: ResMut<StarSpawnTimer>) {
+    star_spawn_timer.timer.tick(time.delta());
+}
+
+fn spawn_stars_overtime(
+    mut commands: Commands,
+    star_spawn_timer: Res<StarSpawnTimer>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    asset_server: Res<AssetServer>,
+) {
+    if star_spawn_timer.timer.just_finished() {
+        if let Ok(window) = window_query.get_single() {
+            let random_x = RandomHelper::random_f32() * window.width();
+            let random_y = RandomHelper::random_f32() * window.height();
+
+            commands.spawn((
+                Star {},
+                SpriteBundle {
+                    transform: Transform::from_xyz(random_x, random_y, 0.0),
+                    texture: asset_server.load("sprites/star.png"),
+                    ..default()
+                },
+            ));
+        }
     }
 }
