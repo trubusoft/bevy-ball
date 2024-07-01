@@ -1,16 +1,17 @@
 use bevy::app::AppExit;
 use bevy::DefaultPlugins;
-use bevy::math::Vec3;
 use bevy::prelude::{
-    App, AssetServer, AudioBundle, ButtonInput, Commands, Component, default, DetectChanges,
-    EventReader, EventWriter, KeyCode, PlaybackSettings, Query, Res, ResMut, Resource,
-    SpriteBundle, Startup, Time, Timer, TimerMode, Transform, Update, Window, With,
+    App, AssetServer, ButtonInput, Commands, Component, default, DetectChanges, EventReader,
+    EventWriter, KeyCode, Query, Res, ResMut, Resource, SpriteBundle, Startup, Time, Timer,
+    TimerMode, Transform, Update, Window, With,
 };
 use bevy::window::PrimaryWindow;
 
 use bevy_ball::camera::CameraPlugin;
+use bevy_ball::enemy::components::Enemy;
+use bevy_ball::enemy::EnemyPlugin;
 use bevy_ball::events::GameOver;
-use bevy_ball::helpers::{MovementHelper, RandomHelper, SoundHelper};
+use bevy_ball::helpers::RandomHelper;
 use bevy_ball::player::PlayerPlugin;
 
 fn main() {
@@ -18,10 +19,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(CameraPlugin)
         .add_plugins(PlayerPlugin)
-        .add_systems(Startup, spawn_enemies)
-        .add_systems(Update, enemy_movement)
-        .add_systems(Update, confine_enemy_movement)
-        .add_systems(Update, update_enemy_direction)
+        .add_plugins(EnemyPlugin)
         .add_systems(Startup, spawn_stars)
         .init_resource::<Score>()
         .add_systems(Update, print_score_on_change)
@@ -38,98 +36,6 @@ fn main() {
         .add_systems(Update, update_high_score)
         .add_systems(Update, print_high_score_on_change)
         .run();
-}
-
-const NUMBER_OF_ENEMIES: usize = 4;
-const ENEMY_SPEED: f32 = 200.0;
-const ENEMY_SIZE: f32 = 64.0;
-
-#[derive(Component)]
-struct Enemy {
-    pub direction: Vec3,
-}
-
-impl Enemy {
-    fn randomize_direction() -> Vec3 {
-        Vec3::new(RandomHelper::random_f32(), RandomHelper::random_f32(), 0.0).normalize()
-    }
-}
-
-fn spawn_enemies(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-) {
-    let window = window_query.get_single().unwrap();
-    for _ in 0..NUMBER_OF_ENEMIES {
-        let random_x = RandomHelper::random_f32() * window.width();
-        let random_y = RandomHelper::random_f32() * window.height();
-
-        commands.spawn((
-            Enemy {
-                direction: Enemy::randomize_direction(),
-            },
-            SpriteBundle {
-                transform: Transform::from_xyz(random_x, random_y, 0.0),
-                texture: asset_server.load("sprites/ball_red_large.png"),
-                ..default()
-            },
-        ));
-    }
-}
-
-fn enemy_movement(mut enemy_query: Query<(&mut Transform, &Enemy)>, time: Res<Time>) {
-    for (mut enemy_transform, enemy) in enemy_query.iter_mut() {
-        let enemy_direction = enemy.direction;
-        enemy_transform.translation += enemy_direction * ENEMY_SPEED * time.delta_seconds();
-    }
-}
-
-fn update_enemy_direction(
-    mut commands: Commands,
-    mut enemy_query: Query<(&Transform, &mut Enemy)>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-    asset_server: Res<AssetServer>,
-) {
-    let window = window_query.get_single().unwrap();
-    for (enemy_transform, mut enemy) in enemy_query.iter_mut() {
-        let half_unit_size = ENEMY_SIZE / 2.0;
-        let x_min = 0.0 + half_unit_size;
-        let x_max = window.width() - half_unit_size;
-        let y_min = 0.0 + half_unit_size;
-        let y_max = window.height() - half_unit_size;
-
-        let new_translation = enemy_transform.translation;
-        let mut is_direction_changed: bool = false;
-
-        if new_translation.x <= x_min || new_translation.x >= x_max {
-            enemy.direction.x *= -1.0;
-            is_direction_changed = true;
-        }
-        if new_translation.y <= y_min || new_translation.y >= y_max {
-            enemy.direction.y *= -1.0;
-            is_direction_changed = true;
-        }
-
-        if is_direction_changed {
-            commands.spawn(AudioBundle {
-                source: asset_server.load(SoundHelper::bounce_sound()),
-                settings: PlaybackSettings::DESPAWN,
-            });
-        }
-    }
-}
-
-fn confine_enemy_movement(
-    mut enemy_query: Query<&mut Transform, With<Enemy>>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-) {
-    if let Ok(mut enemy_transform) = enemy_query.get_single_mut() {
-        let window = window_query.get_single().unwrap();
-        let confined_translation =
-            MovementHelper::confine(window, enemy_transform.translation, ENEMY_SIZE);
-        enemy_transform.translation = confined_translation;
-    }
 }
 
 const NUMBER_OF_STARS: usize = 10;
