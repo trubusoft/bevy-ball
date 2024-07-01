@@ -2,8 +2,8 @@ use bevy::DefaultPlugins;
 use bevy::math::Vec3;
 use bevy::prelude::{
     App, AssetServer, AudioBundle, ButtonInput, Camera2dBundle, Commands, Component, default,
-    Entity, KeyCode, PlaybackSettings, Query, Res, SpriteBundle, Startup, Time, Transform, Update,
-    Window, With,
+    DetectChanges, Entity, KeyCode, PlaybackSettings, Query, Res, ResMut, Resource, SpriteBundle,
+    Startup, Time, Transform, Update, Window, With,
 };
 use bevy::window::PrimaryWindow;
 
@@ -12,6 +12,7 @@ use bevy_ball::{MovementHelper, RandomHelper, SoundHelper, WindowHelper};
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .init_resource::<Score>()
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, spawn_player)
         .add_systems(Update, player_movement)
@@ -23,6 +24,7 @@ fn main() {
         .add_systems(Update, player_despawn_when_hit)
         .add_systems(Startup, spawn_stars)
         .add_systems(Update, player_hit_star)
+        .add_systems(Update, print_score_on_change)
         .run();
 }
 
@@ -229,6 +231,7 @@ fn player_hit_star(
     player_query: Query<&Transform, With<Player>>,
     star_query: Query<(Entity, &Transform), With<Star>>,
     asset_server: Res<AssetServer>,
+    mut score: ResMut<Score>,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for (star_entity, star_transform) in star_query.iter() {
@@ -244,7 +247,25 @@ fn player_hit_star(
                     settings: PlaybackSettings::DESPAWN,
                 });
                 commands.entity(star_entity).despawn();
+                score.value += 1;
             }
         }
+    }
+}
+
+#[derive(Resource)]
+struct Score {
+    pub value: u32,
+}
+
+impl Default for Score {
+    fn default() -> Score {
+        Score { value: 0 }
+    }
+}
+
+fn print_score_on_change(score: Res<Score>) {
+    if score.is_changed() {
+        println!("Score updated: {}", score.value);
     }
 }
