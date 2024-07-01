@@ -1,13 +1,13 @@
 use bevy::asset::AssetServer;
 use bevy::input::ButtonInput;
 use bevy::prelude::{
-    Commands, default, Entity, EventWriter, KeyCode, Query, Res, ResMut, SpriteBundle, Time,
+    Commands, Entity, EventWriter, KeyCode, Query, Res, ResMut, Time,
     Transform, Window, With,
 };
 use bevy::window::PrimaryWindow;
 
 use crate::enemy::components::{Enemy, ENEMY_SIZE};
-use crate::helpers::{AudioHelper, MovementHelper, WindowHelper};
+use crate::helpers::{AudioHelper, MovementHelper};
 use crate::player::components::{Player, PLAYER_SIZE, PLAYER_SPEED};
 use crate::score::components::Score;
 use crate::star::components::{Star, STAR_SIZE};
@@ -18,15 +18,9 @@ pub fn spawn_player(
     window_query: Query<&Window, With<PrimaryWindow>>,
     asset_server: Res<AssetServer>,
 ) {
-    let window = window_query.get_single().unwrap();
-    commands.spawn((
-        Player {},
-        SpriteBundle {
-            transform: WindowHelper::center(window),
-            texture: asset_server.load("sprites/ball_blue_large.png"),
-            ..default()
-        },
-    ));
+    if let Ok(window) = window_query.get_single() {
+        commands.spawn(Player::at_center_of_the_screen(window, &asset_server));
+    }
 }
 
 pub fn player_movement(
