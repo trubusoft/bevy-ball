@@ -7,8 +7,11 @@ use bevy::prelude::{
 };
 use bevy::window::PrimaryWindow;
 
+use crate::enemy::components::{Enemy, ENEMY_SIZE};
 use crate::helpers::{MovementHelper, SoundHelper, WindowHelper};
 use crate::player::components::{Player, PLAYER_SIZE, PLAYER_SPEED};
+use crate::score::components::Score;
+use crate::star::components::{Star, STAR_SIZE};
 use crate::system::events::GameOver;
 
 pub fn spawn_player(
