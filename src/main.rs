@@ -3,29 +3,26 @@ use bevy::DefaultPlugins;
 use bevy::math::Vec3;
 use bevy::prelude::{
     App, AssetServer, AudioBundle, ButtonInput, Commands, Component, default, DetectChanges,
-    Entity, EventReader, EventWriter, KeyCode, PlaybackSettings, Query, Res, ResMut, Resource,
+    EventReader, EventWriter, KeyCode, PlaybackSettings, Query, Res, ResMut, Resource,
     SpriteBundle, Startup, Time, Timer, TimerMode, Transform, Update, Window, With,
 };
 use bevy::window::PrimaryWindow;
 
 use bevy_ball::camera::CameraPlugin;
 use bevy_ball::events::GameOver;
-use bevy_ball::helpers::{MovementHelper, RandomHelper, SoundHelper, WindowHelper};
+use bevy_ball::helpers::{MovementHelper, RandomHelper, SoundHelper};
+use bevy_ball::player::PlayerPlugin;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(CameraPlugin)
-        .add_systems(Startup, spawn_player)
-        .add_systems(Update, player_movement)
-        .add_systems(Update, confine_player_movement)
+        .add_plugins(PlayerPlugin)
         .add_systems(Startup, spawn_enemies)
         .add_systems(Update, enemy_movement)
         .add_systems(Update, confine_enemy_movement)
         .add_systems(Update, update_enemy_direction)
-        .add_systems(Update, player_hit_enemy)
         .add_systems(Startup, spawn_stars)
-        .add_systems(Update, player_hit_star)
         .init_resource::<Score>()
         .add_systems(Update, print_score_on_change)
         .init_resource::<StarSpawnTimer>()
@@ -41,51 +38,6 @@ fn main() {
         .add_systems(Update, update_high_score)
         .add_systems(Update, print_high_score_on_change)
         .run();
-}
-
-#[derive(Component)]
-struct Player {}
-
-fn spawn_player(
-    mut commands: Commands,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-    asset_server: Res<AssetServer>,
-) {
-    let window = window_query.get_single().unwrap();
-    commands.spawn((
-        Player {},
-        SpriteBundle {
-            transform: WindowHelper::center(window),
-            texture: asset_server.load("sprites/ball_blue_large.png"),
-            ..default()
-        },
-    ));
-}
-
-const PLAYER_SPEED: f32 = 500.0;
-const PLAYER_SIZE: f32 = 64.0;
-
-fn player_movement(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut player_query: Query<&mut Transform, With<Player>>,
-    time: Res<Time>,
-) {
-    if let Ok(mut transform) = player_query.get_single_mut() {
-        let movement_direction = MovementHelper::handle_input(keyboard_input);
-        transform.translation += movement_direction * PLAYER_SPEED * time.delta_seconds();
-    }
-}
-
-fn confine_player_movement(
-    mut player_query: Query<&mut Transform, With<Player>>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-) {
-    if let Ok(mut player_transform) = player_query.get_single_mut() {
-        let window = window_query.get_single().unwrap();
-        let confined_translation =
-            MovementHelper::confine(window, player_transform.translation, PLAYER_SIZE);
-        player_transform.translation = confined_translation;
-    }
 }
 
 const NUMBER_OF_ENEMIES: usize = 4;
@@ -180,34 +132,6 @@ fn confine_enemy_movement(
     }
 }
 
-fn player_hit_enemy(
-    mut commands: Commands,
-    mut player_query: Query<(Entity, &Transform), With<Player>>,
-    enemy_query: Query<&Transform, With<Enemy>>,
-    asset_server: Res<AssetServer>,
-    mut game_over_event_writter: EventWriter<GameOver>,
-    score: Res<Score>,
-) {
-    if let Ok((player_entity, player_transform)) = player_query.get_single_mut() {
-        for enemy_transform in enemy_query.iter() {
-            let player_radius = PLAYER_SIZE / 2.0;
-            let enemy_radius = ENEMY_SIZE / 2.0;
-            let actual_distance = player_transform
-                .translation
-                .distance(enemy_transform.translation);
-
-            if actual_distance <= (player_radius + enemy_radius) {
-                commands.spawn(AudioBundle {
-                    source: asset_server.load(SoundHelper::game_over_sound()),
-                    settings: PlaybackSettings::DESPAWN,
-                });
-                commands.entity(player_entity).despawn();
-                game_over_event_writter.send(GameOver { score: score.value });
-            }
-        }
-    }
-}
-
 const NUMBER_OF_STARS: usize = 10;
 const STAR_SIZE: f32 = 30.0;
 
@@ -232,33 +156,6 @@ fn spawn_stars(
                     ..default()
                 },
             ));
-        }
-    }
-}
-
-fn player_hit_star(
-    mut commands: Commands,
-    player_query: Query<&Transform, With<Player>>,
-    star_query: Query<(Entity, &Transform), With<Star>>,
-    asset_server: Res<AssetServer>,
-    mut score: ResMut<Score>,
-) {
-    if let Ok(player_transform) = player_query.get_single() {
-        for (star_entity, star_transform) in star_query.iter() {
-            let player_radius = PLAYER_SIZE / 2.0;
-            let star_radius = STAR_SIZE / 2.0;
-            let actual_distance = player_transform
-                .translation
-                .distance(star_transform.translation);
-
-            if actual_distance <= (player_radius + star_radius) {
-                commands.spawn(AudioBundle {
-                    source: asset_server.load(SoundHelper::obtain_star_sound()),
-                    settings: PlaybackSettings::DESPAWN,
-                });
-                commands.entity(star_entity).despawn();
-                score.value += 1;
-            }
         }
     }
 }
