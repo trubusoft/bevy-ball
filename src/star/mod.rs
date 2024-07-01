@@ -8,9 +8,9 @@ pub struct StarPlugin;
 
 impl Plugin for StarPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, systems::spawn_stars)
-            .init_resource::<components::StarSpawnTimer>()
-            .add_systems(Update, systems::tick_spawn_star_timer)
+        app.init_resource::<components::StarSpawnTimer>()
+            .add_systems(Startup, systems::spawn_initial_stars)
+            .add_systems(Update, systems::tick_spawn_stars_overtime)
             .add_systems(Update, systems::spawn_stars_overtime);
     }
 }

@@ -10,7 +10,7 @@ use crate::enemy::components::{
 };
 use crate::helpers::{MovementHelper, RandomHelper, SoundHelper};
 
-pub fn spawn_enemies(
+pub fn spawn_initial_enemies(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     window_query: Query<&Window, With<PrimaryWindow>>,
@@ -40,7 +40,7 @@ pub fn enemy_movement(mut enemy_query: Query<(&mut Transform, &Enemy)>, time: Re
     }
 }
 
-pub fn update_enemy_direction(
+pub fn update_enemy_direction_when_out_of_bound(
     mut commands: Commands,
     mut enemy_query: Query<(&Transform, &mut Enemy)>,
     window_query: Query<&Window, With<PrimaryWindow>>,
@@ -87,7 +87,7 @@ pub fn confine_enemy_movement(
     }
 }
 
-pub fn tick_spawn_enemy_timer(time: Res<Time>, mut enemy_spawn_timer: ResMut<EnemySpawnTimer>) {
+pub fn tick_spawn_enemy_overtime(time: Res<Time>, mut enemy_spawn_timer: ResMut<EnemySpawnTimer>) {
     enemy_spawn_timer.timer.tick(time.delta());
 }
 

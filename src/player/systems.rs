@@ -53,7 +53,7 @@ pub fn confine_player_movement(
     }
 }
 
-pub fn player_hit_enemy(
+pub fn on_player_hit_enemy(
     mut commands: Commands,
     mut player_query: Query<(Entity, &Transform), With<Player>>,
     enemy_query: Query<&Transform, With<Enemy>>,
@@ -81,7 +81,7 @@ pub fn player_hit_enemy(
     }
 }
 
-pub fn player_hit_star(
+pub fn on_player_hit_star(
     mut commands: Commands,
     player_query: Query<&Transform, With<Player>>,
     star_query: Query<(Entity, &Transform), With<Star>>,

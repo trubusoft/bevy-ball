@@ -7,7 +7,7 @@ use bevy::window::PrimaryWindow;
 use crate::helpers::RandomHelper;
 use crate::star::components::{NUMBER_OF_STARS, Star, StarSpawnTimer};
 
-pub fn spawn_stars(
+pub fn spawn_initial_stars(
     mut commands: Commands,
     window_query: Query<&Window, With<PrimaryWindow>>,
     asset_server: Res<AssetServer>,
@@ -29,7 +29,7 @@ pub fn spawn_stars(
     }
 }
 
-pub fn tick_spawn_star_timer(time: Res<Time>, mut star_spawn_timer: ResMut<StarSpawnTimer>) {
+pub fn tick_spawn_stars_overtime(time: Res<Time>, mut star_spawn_timer: ResMut<StarSpawnTimer>) {
     star_spawn_timer.timer.tick(time.delta());
 }
 

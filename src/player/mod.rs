@@ -11,7 +11,7 @@ impl Plugin for PlayerPlugin {
         app.add_systems(Startup, systems::spawn_player)
             .add_systems(Update, systems::player_movement)
             .add_systems(Update, systems::confine_player_movement)
-            .add_systems(Update, systems::player_hit_enemy)
-            .add_systems(Update, systems::player_hit_star);
+            .add_systems(Update, systems::on_player_hit_enemy)
+            .add_systems(Update, systems::on_player_hit_star);
     }
 }
