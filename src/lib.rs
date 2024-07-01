@@ -87,6 +87,10 @@ impl SoundHelper {
         };
     }
 
+    pub fn obtain_star_sound() -> String {
+        "audio/laserLarge_000.ogg".to_string()
+    }
+
     pub fn game_over_sound() -> String {
         "audio/explosionCrunch_000.ogg".to_string()
     }
