@@ -3,6 +3,8 @@ use bevy::math::Vec3;
 use bevy::prelude::{KeyCode, Res, Transform, Window};
 use rand::random;
 
+pub mod commons;
+
 pub struct WindowHelper {}
 
 impl WindowHelper {
