@@ -36,6 +36,9 @@ fn main() {
         .add_systems(Update, exit_on_escape)
         .add_event::<GameOver>()
         .add_systems(Update, handle_game_over_event)
+        .init_resource::<HighScore>()
+        .add_systems(Update, update_high_score)
+        .add_systems(Update, print_high_score_on_change)
         .run();
 }
 
@@ -386,5 +389,29 @@ struct GameOver {
 fn handle_game_over_event(mut event_reader: EventReader<GameOver>) {
     for event in event_reader.read() {
         println!("Your final score is: {}", event.score)
+    }
+}
+
+#[derive(Resource, Debug)]
+struct HighScore {
+    pub scores: Vec<(String, u32)>,
+}
+
+impl Default for HighScore {
+    fn default() -> Self {
+        Self { scores: Vec::new() }
+    }
+}
+
+fn update_high_score(mut event_reader: EventReader<GameOver>, mut high_score: ResMut<HighScore>) {
+    for event in event_reader.read() {
+        let last_score = event.score;
+        high_score.scores.push(("Player".to_string(), last_score));
+    }
+}
+
+fn print_high_score_on_change(high_score: Res<HighScore>) {
+    if high_score.is_changed() {
+        println!("High Score updated: {:?}", high_score);
     }
 }
