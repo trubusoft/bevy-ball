@@ -1,35 +1,22 @@
 use bevy::asset::AssetServer;
 use bevy::audio::{AudioBundle, PlaybackSettings};
-use bevy::prelude::{
-    Commands, default, Query, Res, ResMut, SpriteBundle, Time, Transform, Window, With,
-};
+use bevy::prelude::{Commands, Query, Res, ResMut, Time, Transform, Window, With};
 use bevy::window::PrimaryWindow;
 
 use crate::enemy::components::{
     Enemy, ENEMY_SIZE, ENEMY_SPEED, EnemySpawnTimer, NUMBER_OF_ENEMIES,
 };
-use crate::helpers::{MovementHelper, RandomHelper, SoundHelper};
+use crate::helpers::{MovementHelper, SoundHelper};
 
 pub fn spawn_initial_enemies(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
-    let window = window_query.get_single().unwrap();
-    for _ in 0..NUMBER_OF_ENEMIES {
-        let random_x = RandomHelper::random_f32() * window.width();
-        let random_y = RandomHelper::random_f32() * window.height();
-
-        commands.spawn((
-            Enemy {
-                direction: Enemy::randomize_direction(),
-            },
-            SpriteBundle {
-                transform: Transform::from_xyz(random_x, random_y, 0.0),
-                texture: asset_server.load("sprites/ball_red_large.png"),
-                ..default()
-            },
-        ));
+    if let Ok(window) = window_query.get_single() {
+        for _ in 0..NUMBER_OF_ENEMIES {
+            commands.spawn(Enemy::at_randomized_location(window, &asset_server));
+        }
     }
 }
 
@@ -98,19 +85,8 @@ pub fn spawn_enemy_overtime(
     asset_server: Res<AssetServer>,
 ) {
     if enemy_spawn_timer.timer.just_finished() {
-        let window = window_query.get_single().unwrap();
-        let random_x = RandomHelper::random_f32() * window.width();
-        let random_y = RandomHelper::random_f32() * window.height();
-
-        commands.spawn((
-            Enemy {
-                direction: Enemy::randomize_direction(),
-            },
-            SpriteBundle {
-                transform: Transform::from_xyz(random_x, random_y, 0.0),
-                texture: asset_server.load("sprites/ball_red_large.png"),
-                ..default()
-            },
-        ));
+        if let Ok(window) = window_query.get_single() {
+            commands.spawn(Enemy::at_randomized_location(window, &asset_server));
+        }
     }
 }
