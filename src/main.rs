@@ -9,7 +9,7 @@ use bevy::prelude::{
 };
 use bevy::window::PrimaryWindow;
 
-use bevy_ball::{MovementHelper, RandomHelper, SoundHelper, WindowHelper};
+use bevy_ball::helpers::{MovementHelper, RandomHelper, SoundHelper, WindowHelper};
 
 fn main() {
     App::new()
