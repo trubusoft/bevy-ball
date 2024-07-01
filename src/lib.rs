@@ -79,7 +79,7 @@ impl RandomHelper {
 pub struct SoundHelper {}
 
 impl SoundHelper {
-    pub fn get_random_pluck_sound_file() -> String {
+    pub fn bounce_sound() -> String {
         return if RandomHelper::random_f32() < 0.5 {
             "audio/pluck_001.ogg".to_string()
         } else {
@@ -87,7 +87,7 @@ impl SoundHelper {
         };
     }
 
-    pub fn get_game_over_sound() -> String {
+    pub fn game_over_sound() -> String {
         "audio/explosionCrunch_000.ogg".to_string()
     }
 }

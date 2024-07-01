@@ -149,9 +149,8 @@ fn update_enemy_direction(
         }
 
         if is_direction_changed {
-            // play sound
             commands.spawn(AudioBundle {
-                source: asset_server.load(SoundHelper::get_random_pluck_sound_file()),
+                source: asset_server.load(SoundHelper::bounce_sound()),
                 settings: PlaybackSettings::DESPAWN,
             });
         }
@@ -186,7 +185,7 @@ fn player_despawn_when_hit(
 
             if actual_distance <= (player_radius + enemy_radus) {
                 commands.spawn(AudioBundle {
-                    source: asset_server.load(SoundHelper::get_game_over_sound()),
+                    source: asset_server.load(SoundHelper::game_over_sound()),
                     settings: PlaybackSettings::DESPAWN,
                 });
                 commands.entity(player_entity).despawn();
