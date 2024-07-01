@@ -178,12 +178,12 @@ fn player_despawn_when_hit(
     if let Ok((player_entity, player_transform)) = player_query.get_single_mut() {
         for enemy_transform in enemy_query.iter() {
             let player_radius = PLAYER_SIZE / 2.0;
-            let enemy_radus = ENEMY_SIZE / 2.0;
+            let enemy_radius = ENEMY_SIZE / 2.0;
             let actual_distance = player_transform
                 .translation
                 .distance(enemy_transform.translation);
 
-            if actual_distance <= (player_radius + enemy_radus) {
+            if actual_distance <= (player_radius + enemy_radius) {
                 commands.spawn(AudioBundle {
                     source: asset_server.load(SoundHelper::game_over_sound()),
                     settings: PlaybackSettings::DESPAWN,
