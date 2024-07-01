@@ -1,9 +1,9 @@
 use bevy::app::AppExit;
 use bevy::DefaultPlugins;
 use bevy::prelude::{
-    App, AssetServer, ButtonInput, Commands, Component, default, DetectChanges, EventReader,
-    EventWriter, KeyCode, Query, Res, ResMut, Resource, SpriteBundle, Startup, Time, Timer,
-    TimerMode, Transform, Update, Window, With,
+    App, AssetServer, ButtonInput, Commands, default, DetectChanges, EventReader, EventWriter,
+    KeyCode, Query, Res, ResMut, Resource, SpriteBundle, Time, Timer, TimerMode, Transform, Update,
+    Window, With,
 };
 use bevy::window::PrimaryWindow;
 
@@ -13,6 +13,7 @@ use bevy_ball::enemy::EnemyPlugin;
 use bevy_ball::events::GameOver;
 use bevy_ball::helpers::RandomHelper;
 use bevy_ball::player::PlayerPlugin;
+use bevy_ball::star::StarPlugin;
 
 fn main() {
     App::new()
@@ -20,12 +21,9 @@ fn main() {
         .add_plugins(CameraPlugin)
         .add_plugins(PlayerPlugin)
         .add_plugins(EnemyPlugin)
-        .add_systems(Startup, spawn_stars)
+        .add_plugins(StarPlugin)
         .init_resource::<Score>()
         .add_systems(Update, print_score_on_change)
-        .init_resource::<StarSpawnTimer>()
-        .add_systems(Update, tick_spawn_star_timer)
-        .add_systems(Update, spawn_stars_overtime)
         .init_resource::<EnemySpawnTimer>()
         .add_systems(Update, tick_spawn_enemy_timer)
         .add_systems(Update, spawn_enemy_overtime)
@@ -36,34 +34,6 @@ fn main() {
         .add_systems(Update, update_high_score)
         .add_systems(Update, print_high_score_on_change)
         .run();
-}
-
-const NUMBER_OF_STARS: usize = 10;
-const STAR_SIZE: f32 = 30.0;
-
-#[derive(Component)]
-struct Star {}
-
-fn spawn_stars(
-    mut commands: Commands,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-    asset_server: Res<AssetServer>,
-) {
-    if let Ok(window) = window_query.get_single() {
-        for _ in 0..NUMBER_OF_STARS {
-            let random_x = RandomHelper::random_f32() * window.width();
-            let random_y = RandomHelper::random_f32() * window.height();
-
-            commands.spawn((
-                Star {},
-                SpriteBundle {
-                    transform: Transform::from_xyz(random_x, random_y, 0.0),
-                    texture: asset_server.load("sprites/star.png"),
-                    ..default()
-                },
-            ));
-        }
-    }
 }
 
 #[derive(Resource)]
@@ -80,48 +50,6 @@ impl Default for Score {
 fn print_score_on_change(score: Res<Score>) {
     if score.is_changed() {
         println!("Score updated: {}", score.value);
-    }
-}
-
-const STAR_SPAWN_TIME: f32 = 1.0;
-
-#[derive(Resource)]
-struct StarSpawnTimer {
-    timer: Timer,
-}
-
-impl Default for StarSpawnTimer {
-    fn default() -> Self {
-        Self {
-            timer: Timer::from_seconds(STAR_SPAWN_TIME, TimerMode::Repeating),
-        }
-    }
-}
-
-fn tick_spawn_star_timer(time: Res<Time>, mut star_spawn_timer: ResMut<StarSpawnTimer>) {
-    star_spawn_timer.timer.tick(time.delta());
-}
-
-fn spawn_stars_overtime(
-    mut commands: Commands,
-    star_spawn_timer: Res<StarSpawnTimer>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-    asset_server: Res<AssetServer>,
-) {
-    if star_spawn_timer.timer.just_finished() {
-        if let Ok(window) = window_query.get_single() {
-            let random_x = RandomHelper::random_f32() * window.width();
-            let random_y = RandomHelper::random_f32() * window.height();
-
-            commands.spawn((
-                Star {},
-                SpriteBundle {
-                    transform: Transform::from_xyz(random_x, random_y, 0.0),
-                    texture: asset_server.load("sprites/star.png"),
-                    ..default()
-                },
-            ));
-        }
     }
 }
 
