@@ -1,3 +1,4 @@
+pub mod camera;
 pub mod commons;
 pub mod enemy;
 pub mod events;

@@ -2,19 +2,20 @@ use bevy::app::AppExit;
 use bevy::DefaultPlugins;
 use bevy::math::Vec3;
 use bevy::prelude::{
-    App, AssetServer, AudioBundle, ButtonInput, Camera2dBundle, Commands, Component, default,
-    DetectChanges, Entity, EventReader, EventWriter, KeyCode, PlaybackSettings, Query, Res, ResMut,
-    Resource, SpriteBundle, Startup, Time, Timer, TimerMode, Transform, Update, Window, With,
+    App, AssetServer, AudioBundle, ButtonInput, Commands, Component, default, DetectChanges,
+    Entity, EventReader, EventWriter, KeyCode, PlaybackSettings, Query, Res, ResMut, Resource,
+    SpriteBundle, Startup, Time, Timer, TimerMode, Transform, Update, Window, With,
 };
 use bevy::window::PrimaryWindow;
 
+use bevy_ball::camera::CameraPlugin;
 use bevy_ball::events::GameOver;
 use bevy_ball::helpers::{MovementHelper, RandomHelper, SoundHelper, WindowHelper};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_systems(Startup, spawn_camera)
+        .add_plugins(CameraPlugin)
         .add_systems(Startup, spawn_player)
         .add_systems(Update, player_movement)
         .add_systems(Update, confine_player_movement)
@@ -40,14 +41,6 @@ fn main() {
         .add_systems(Update, update_high_score)
         .add_systems(Update, print_high_score_on_change)
         .run();
-}
-
-fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
-    let window = window_query.get_single().unwrap();
-    commands.spawn(Camera2dBundle {
-        transform: WindowHelper::center(window),
-        ..default()
-    });
 }
 
 #[derive(Component)]
