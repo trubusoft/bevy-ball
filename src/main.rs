@@ -3,12 +3,12 @@ use bevy::DefaultPlugins;
 use bevy::math::Vec3;
 use bevy::prelude::{
     App, AssetServer, AudioBundle, ButtonInput, Camera2dBundle, Commands, Component, default,
-    DetectChanges, Entity, Event, EventReader, EventWriter, KeyCode, PlaybackSettings, Query, Res,
-    ResMut, Resource, SpriteBundle, Startup, Time, Timer, TimerMode, Transform, Update, Window,
-    With,
+    DetectChanges, Entity, EventReader, EventWriter, KeyCode, PlaybackSettings, Query, Res, ResMut,
+    Resource, SpriteBundle, Startup, Time, Timer, TimerMode, Transform, Update, Window, With,
 };
 use bevy::window::PrimaryWindow;
 
+use bevy_ball::events::GameOver;
 use bevy_ball::helpers::{MovementHelper, RandomHelper, SoundHelper, WindowHelper};
 
 fn main() {
@@ -379,11 +379,6 @@ fn exit_on_escape(
     if keyboard_input.pressed(KeyCode::Escape) {
         event_writter.send(AppExit);
     }
-}
-
-#[derive(Event)]
-struct GameOver {
-    pub score: u32,
 }
 
 fn handle_game_over_event(mut event_reader: EventReader<GameOver>) {
