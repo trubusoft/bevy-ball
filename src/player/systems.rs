@@ -7,9 +7,9 @@ use bevy::prelude::{
 };
 use bevy::window::PrimaryWindow;
 
-use crate::events::GameOver;
 use crate::helpers::{MovementHelper, SoundHelper, WindowHelper};
 use crate::player::components::{Player, PLAYER_SIZE, PLAYER_SPEED};
+use crate::system::events::GameOver;
 
 pub fn spawn_player(
     mut commands: Commands,
