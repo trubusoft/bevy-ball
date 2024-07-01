@@ -5,6 +5,7 @@ use bevy::window::PrimaryWindow;
 use crate::helpers::WindowHelper;
 use crate::system::events::GameOver;
 
+pub mod components;
 pub mod events;
 mod systems;
 
