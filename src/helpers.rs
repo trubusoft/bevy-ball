@@ -1,3 +1,5 @@
+use bevy::asset::AssetServer;
+use bevy::audio::{AudioBundle, PlaybackSettings};
 use bevy::input::ButtonInput;
 use bevy::math::Vec3;
 use bevy::prelude::{KeyCode, Res, Transform, Window};
@@ -76,10 +78,29 @@ impl RandomHelper {
     }
 }
 
-pub struct SoundHelper {}
+pub struct AudioHelper {}
 
-impl SoundHelper {
-    pub fn bounce_sound() -> String {
+impl AudioHelper {
+    fn play_once(asset_server: &Res<AssetServer>, file_name: String) -> AudioBundle {
+        AudioBundle {
+            source: asset_server.load(file_name),
+            settings: PlaybackSettings::DESPAWN,
+        }
+    }
+
+    pub fn play_bounce_sound(asset_server: &Res<AssetServer>) -> AudioBundle {
+        Self::play_once(&asset_server, AudioHelper::bounce_sound())
+    }
+
+    pub fn play_obtain_star_sound(asset_server: &Res<AssetServer>) -> AudioBundle {
+        Self::play_once(&asset_server, AudioHelper::obtain_star_sound())
+    }
+
+    pub fn play_game_over_sound(asset_server: &Res<AssetServer>) -> AudioBundle {
+        Self::play_once(&asset_server, AudioHelper::game_over_sound())
+    }
+
+    fn bounce_sound() -> String {
         return if RandomHelper::random_f32() < 0.5 {
             "audio/pluck_001.ogg".to_string()
         } else {
@@ -87,11 +108,11 @@ impl SoundHelper {
         };
     }
 
-    pub fn obtain_star_sound() -> String {
+    fn obtain_star_sound() -> String {
         "audio/laserLarge_000.ogg".to_string()
     }
 
-    pub fn game_over_sound() -> String {
+    fn game_over_sound() -> String {
         "audio/explosionCrunch_000.ogg".to_string()
     }
 }

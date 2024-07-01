@@ -1,12 +1,11 @@
 use bevy::asset::AssetServer;
-use bevy::audio::{AudioBundle, PlaybackSettings};
 use bevy::prelude::{Commands, Query, Res, ResMut, Time, Transform, Window, With};
 use bevy::window::PrimaryWindow;
 
 use crate::enemy::components::{
     Enemy, ENEMY_SIZE, ENEMY_SPEED, EnemySpawnTimer, NUMBER_OF_ENEMIES,
 };
-use crate::helpers::{MovementHelper, SoundHelper};
+use crate::helpers::{AudioHelper, MovementHelper};
 
 pub fn spawn_initial_enemies(
     mut commands: Commands,
@@ -54,10 +53,7 @@ pub fn update_enemy_direction_when_out_of_bound(
         }
 
         if is_direction_changed {
-            commands.spawn(AudioBundle {
-                source: asset_server.load(SoundHelper::bounce_sound()),
-                settings: PlaybackSettings::DESPAWN,
-            });
+            commands.spawn(AudioHelper::play_bounce_sound(&asset_server));
         }
     }
 }

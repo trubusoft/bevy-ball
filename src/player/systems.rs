@@ -1,5 +1,4 @@
 use bevy::asset::AssetServer;
-use bevy::audio::{AudioBundle, PlaybackSettings};
 use bevy::input::ButtonInput;
 use bevy::prelude::{
     Commands, default, Entity, EventWriter, KeyCode, Query, Res, ResMut, SpriteBundle, Time,
@@ -8,7 +7,7 @@ use bevy::prelude::{
 use bevy::window::PrimaryWindow;
 
 use crate::enemy::components::{Enemy, ENEMY_SIZE};
-use crate::helpers::{MovementHelper, SoundHelper, WindowHelper};
+use crate::helpers::{AudioHelper, MovementHelper, WindowHelper};
 use crate::player::components::{Player, PLAYER_SIZE, PLAYER_SPEED};
 use crate::score::components::Score;
 use crate::star::components::{Star, STAR_SIZE};
@@ -70,10 +69,7 @@ pub fn on_player_hit_enemy(
                 .distance(enemy_transform.translation);
 
             if actual_distance <= (player_radius + enemy_radius) {
-                commands.spawn(AudioBundle {
-                    source: asset_server.load(SoundHelper::game_over_sound()),
-                    settings: PlaybackSettings::DESPAWN,
-                });
+                commands.spawn(AudioHelper::play_game_over_sound(&asset_server));
                 commands.entity(player_entity).despawn();
                 game_over_event_writter.send(GameOver { score: score.value });
             }
@@ -97,10 +93,7 @@ pub fn on_player_hit_star(
                 .distance(star_transform.translation);
 
             if actual_distance <= (player_radius + star_radius) {
-                commands.spawn(AudioBundle {
-                    source: asset_server.load(SoundHelper::obtain_star_sound()),
-                    settings: PlaybackSettings::DESPAWN,
-                });
+                commands.spawn(AudioHelper::play_obtain_star_sound(&asset_server));
                 commands.entity(star_entity).despawn();
                 score.value += 1;
             }
