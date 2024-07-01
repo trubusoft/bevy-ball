@@ -21,6 +21,7 @@ fn main() {
         .add_systems(Update, confine_enemy_movement)
         .add_systems(Update, update_enemy_direction)
         .add_systems(Update, player_despawn_when_hit)
+        .add_systems(Startup, spawn_stars)
         .run();
 }
 
@@ -190,6 +191,33 @@ fn player_despawn_when_hit(
                 });
                 commands.entity(player_entity).despawn();
             }
+        }
+    }
+}
+
+const NUMBER_OF_STARS: usize = 10;
+
+#[derive(Component)]
+struct Star {}
+
+fn spawn_stars(
+    mut commands: Commands,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    asset_server: Res<AssetServer>,
+) {
+    if let Ok(window) = window_query.get_single() {
+        for _ in 0..NUMBER_OF_STARS {
+            let random_x = RandomHelper::random_f32() * window.width();
+            let random_y = RandomHelper::random_f32() * window.height();
+
+            commands.spawn((
+                Star {},
+                SpriteBundle {
+                    transform: Transform::from_xyz(random_x, random_y, 0.0),
+                    texture: asset_server.load("sprites/star.png"),
+                    ..default()
+                },
+            ));
         }
     }
 }
