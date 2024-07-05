@@ -25,6 +25,7 @@ impl Debug {
             .run();
     }
 
+    #[allow(dead_code)]
     fn debug_x() {
         App::new()
             .add_plugins(DefaultPlugins)
