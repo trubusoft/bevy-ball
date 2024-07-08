@@ -6,7 +6,7 @@ use bevy::prelude::{
 };
 use bevy::window::PrimaryWindow;
 
-use game::player::PlayerDead;
+use game::player::CollidedWithEnemy;
 
 use crate::helpers::WindowHelper;
 

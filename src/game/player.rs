@@ -20,7 +20,7 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<PlayerDead>()
+        app.add_event::<CollidedWithEnemy>()
             .add_event::<CollidedWithStar>()
             .add_systems(OnEnter(ApplicationState::InGame), spawn_player)
             .add_systems(OnExit(ApplicationState::InGame), despawn_player)
@@ -52,7 +52,7 @@ impl Plugin for PlayerPlugin {
 }
 
 #[derive(Event)]
-pub struct PlayerDead {
+pub struct CollidedWithEnemy {
     pub score: u32,
 }
 
@@ -121,7 +121,7 @@ pub fn on_player_hit_enemy(
     mut player_query: Query<(Entity, &Transform), With<Player>>,
     enemy_query: Query<&Transform, With<Enemy>>,
     asset_server: Res<AssetServer>,
-    mut event_writer: EventWriter<PlayerDead>,
+    mut event_writer: EventWriter<CollidedWithEnemy>,
     mut score: Option<Res<Score>>,
 ) {
     if let Ok((player_entity, player_transform)) = player_query.get_single_mut() {
@@ -137,7 +137,7 @@ pub fn on_player_hit_enemy(
                 commands.spawn(AudioHelper::play_game_over_sound(&asset_server));
                 commands.entity(player_entity).despawn();
                 if let Some(score) = &mut score {
-                    event_writer.send(PlayerDead { score: score.value });
+                    event_writer.send(CollidedWithEnemy { score: score.value });
                 }
             }
         }

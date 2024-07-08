@@ -6,8 +6,8 @@ use bevy::prelude::{
     ResMut, State, States, Update,
 };
 
+use player::CollidedWithEnemy;
 use player::CollidedWithStar;
-use player::PlayerDead;
 
 use crate::ApplicationState;
 use crate::game::enemy::EnemyPlugin;

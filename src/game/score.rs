@@ -6,7 +6,7 @@ use bevy::prelude::{
 use bevy::prelude::Resource;
 
 use crate::ApplicationState;
-use crate::game::player::PlayerDead;
+use crate::game::player::CollidedWithEnemy;
 use crate::game::SimulationState;
 
 pub struct ScorePlugin;
@@ -22,8 +22,8 @@ impl Plugin for ScorePlugin {
                     .run_if(in_state(SimulationState::Running)),
             )
             .init_resource::<HighScore>()
-            .add_systems(Update, on_player_dead)
-            .add_systems(Update, update_high_score)
+            .add_systems(Update, on_player_collided_with_enemy_transition_state)
+            .add_systems(Update, on_player_collided_with_enemy_update_high_score)
             .add_systems(Update, on_high_score_change);
     }
 }
@@ -64,7 +64,10 @@ pub fn on_score_change(score: Res<Score>) {
     }
 }
 
-pub fn on_player_dead(mut commands: Commands, mut event_reader: EventReader<PlayerDead>) {
+pub fn on_player_collided_with_enemy_transition_state(
+    mut commands: Commands,
+    mut event_reader: EventReader<CollidedWithEnemy>,
+) {
     for event in event_reader.read() {
         println!("Your final score is: {}", event.score);
         commands.insert_resource(NextState(Some(ApplicationState::GameOver)));
@@ -72,8 +75,8 @@ pub fn on_player_dead(mut commands: Commands, mut event_reader: EventReader<Play
     }
 }
 
-pub fn update_high_score(
-    mut event_reader: EventReader<PlayerDead>,
+pub fn on_player_collided_with_enemy_update_high_score(
+    mut event_reader: EventReader<CollidedWithEnemy>,
     mut high_score: ResMut<HighScore>,
 ) {
     for event in event_reader.read() {
