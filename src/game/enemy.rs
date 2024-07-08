@@ -8,7 +8,7 @@ use bevy::prelude::{
 use bevy::prelude::{Commands, Entity, Query, Res, ResMut, Time, Transform, Window, With};
 use bevy::window::PrimaryWindow;
 
-use crate::{ApplicationState, Despawn};
+use crate::{ApplicationState, ScheduleDespawn};
 use crate::game::SimulationState;
 use crate::helpers::{AudioHelper, MovementHelper};
 use crate::helpers::{RandomHelper, SpriteHelper};
@@ -165,6 +165,8 @@ pub fn spawn_enemy_overtime(
 
 pub fn despawn_all_enemies(mut commands: Commands, query: Query<Entity, With<Enemy>>) {
     for enemy_entity in query.iter() {
-        commands.entity(enemy_entity).insert(Despawn {});
+        commands
+            .entity(enemy_entity)
+            .insert(ScheduleDespawn::default());
     }
 }

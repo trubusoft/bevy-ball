@@ -25,9 +25,9 @@ impl Plugin for SystemPlugin {
 }
 
 #[derive(Component)]
-pub struct Despawn {}
+pub struct ScheduleDespawn {}
 
-impl Default for Despawn {
+impl Default for ScheduleDespawn {
     fn default() -> Self {
         Self {}
     }
@@ -50,7 +50,7 @@ pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<Pr
     });
 }
 
-pub fn despawn_entity(mut commands: Commands, query: Query<Entity, With<Despawn>>) {
+pub fn despawn_entity(mut commands: Commands, query: Query<Entity, With<ScheduleDespawn>>) {
     for entity in query.iter() {
         commands.entity(entity).despawn();
     }

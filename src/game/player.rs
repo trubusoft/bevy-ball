@@ -8,7 +8,7 @@ use bevy::prelude::{
 use bevy::prelude::{in_state, IntoSystemConfigs, OnEnter, OnExit, Plugin};
 use bevy::window::PrimaryWindow;
 
-use crate::{ApplicationState, Despawn};
+use crate::{ApplicationState, ScheduleDespawn};
 use crate::game::enemy::{Enemy, ENEMY_SIZE};
 use crate::game::events::{CollidedWithStar, PlayerDead};
 use crate::game::score::Score;
@@ -135,7 +135,7 @@ pub fn on_player_hit_enemy(
 
 pub fn on_hit_star_emit_collide_event(
     player_query: Query<&Transform, With<Player>>,
-    star_query: Query<(Entity, &Transform), (With<Star>, Without<Despawn>)>,
+    star_query: Query<(Entity, &Transform), (With<Star>, Without<ScheduleDespawn>)>,
     mut event_writer: EventWriter<CollidedWithStar>,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
@@ -161,7 +161,7 @@ pub fn on_star_collide_despawn_star(
     for event in event_reader.read() {
         let star_entity = event.star_entity;
         if let Some(mut entity_commands) = commands.get_entity(star_entity) {
-            entity_commands.insert(Despawn {});
+            entity_commands.insert(ScheduleDespawn::default());
         }
     }
 }
@@ -191,6 +191,6 @@ pub fn on_star_collide_event_add_score(
 
 pub fn despawn_player(mut commands: Commands, query: Query<Entity, With<Player>>) {
     if let Ok(player_entity) = query.get_single() {
-        commands.entity(player_entity).insert(Despawn {});
+        commands.entity(player_entity).insert(ScheduleDespawn {});
     }
 }
