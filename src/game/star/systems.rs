@@ -1,11 +1,12 @@
 use bevy::asset::AssetServer;
 use bevy::prelude::{
-    Commands, default, Query, Res, ResMut, SpriteBundle, Time, Transform, Window, With,
+    Commands, default, Entity, Query, Res, ResMut, SpriteBundle, Time, Transform, Window, With,
 };
 use bevy::window::PrimaryWindow;
 
+use crate::game::star::components::{NUMBER_OF_STARS, Star, StarSpawnTimer};
 use crate::helpers::RandomHelper;
-use crate::star::components::{NUMBER_OF_STARS, Star, StarSpawnTimer};
+use crate::system::components::Despawn;
 
 pub fn spawn_initial_stars(
     mut commands: Commands,
@@ -53,5 +54,11 @@ pub fn spawn_stars_overtime(
                 },
             ));
         }
+    }
+}
+
+pub fn despawn_all_stars(mut commands: Commands, query: Query<Entity, With<Star>>) {
+    for enemy_entity in query.iter() {
+        commands.entity(enemy_entity).insert(Despawn {});
     }
 }
