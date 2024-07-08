@@ -1,10 +1,13 @@
 use bevy::app::App;
 use bevy::input::ButtonInput;
+use bevy::log::info;
 use bevy::prelude::{
-    Commands, in_state, IntoSystemConfigs, KeyCode, NextState, Plugin, Res, State, States, Update,
+    Commands, in_state, IntoSystemConfigs, KeyCode, NextState, OnEnter, OnExit, Plugin, Res,
+    ResMut, State, States, Update,
 };
 
 use crate::game::enemy::EnemyPlugin;
+use crate::game::events::{CollidedWithStar, PlayerDead};
 use crate::game::player::PlayerPlugin;
 use crate::game::score::ScorePlugin;
 use crate::game::star::StarPlugin;
@@ -21,13 +24,17 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<SimulationState>()
+            .add_event::<CollidedWithStar>()
+            .add_event::<PlayerDead>()
             .add_plugins(PlayerPlugin)
             .add_plugins(EnemyPlugin)
             .add_plugins(StarPlugin)
             .add_plugins(ScorePlugin)
+            .add_systems(OnEnter(ApplicationState::InGame), resume_simulation)
+            .add_systems(OnExit(ApplicationState::InGame), pause_simulation)
             .add_systems(
                 Update,
-                toggle_simulation_state.run_if(in_state(ApplicationState::InGame)),
+                toggle_simulation.run_if(in_state(ApplicationState::InGame)),
             );
     }
 }
@@ -39,7 +46,7 @@ pub enum SimulationState {
     Paused,
 }
 
-pub fn toggle_simulation_state(
+pub fn toggle_simulation(
     mut commands: Commands,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     state: Res<State<SimulationState>>,
@@ -48,12 +55,20 @@ pub fn toggle_simulation_state(
         match state.get() {
             SimulationState::Running => {
                 commands.insert_resource(NextState(Some(SimulationState::Paused)));
-                println!("simulation paused");
+                info!("{:?}", SimulationState::Paused);
             }
             SimulationState::Paused => {
                 commands.insert_resource(NextState(Some(SimulationState::Running)));
-                println!("simulation running");
+                info!("{:?}", SimulationState::Running);
             }
         }
     }
+}
+
+pub fn pause_simulation(mut next_state: ResMut<NextState<SimulationState>>) {
+    next_state.set(SimulationState::Paused);
+}
+
+pub fn resume_simulation(mut next_state: ResMut<NextState<SimulationState>>) {
+    next_state.set(SimulationState::Running);
 }

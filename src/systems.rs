@@ -2,24 +2,18 @@ use bevy::app::{App, Plugin, Startup, Update};
 use bevy::app::AppExit;
 use bevy::input::ButtonInput;
 use bevy::prelude::{
-    Camera2dBundle, Commands, Component, default, Entity, EventWriter, KeyCode, NextState, OnEnter,
-    OnExit, PostUpdate, Query, Res, ResMut, State, States, Window, With,
+    Camera2dBundle, Commands, Component, default, Entity, EventWriter, KeyCode, NextState,
+    PostUpdate, Query, Res, ResMut, State, States, Window, With,
 };
 use bevy::window::PrimaryWindow;
 
-use crate::game::events::{CollidedWithStar, PlayerDead};
-use crate::game::SimulationState;
 use crate::helpers::WindowHelper;
 
 pub struct SystemPlugin;
 
 impl Plugin for SystemPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<CollidedWithStar>()
-            .add_event::<PlayerDead>()
-            .add_systems(OnEnter(ApplicationState::InGame), resume_simulation)
-            .add_systems(OnExit(ApplicationState::InGame), pause_simulation)
-            .add_systems(Startup, spawn_camera)
+        app.add_systems(Startup, spawn_camera)
             .add_systems(Update, on_escape_exit)
             .add_systems(PostUpdate, despawn_entity)
             .add_systems(Update, transition_to_in_game_state)
@@ -88,14 +82,6 @@ pub fn transition_to_main_menu_state(
             _ => {}
         }
     }
-}
-
-pub fn pause_simulation(mut next_state: ResMut<NextState<SimulationState>>) {
-    next_state.set(SimulationState::Paused);
-}
-
-pub fn resume_simulation(mut next_state: ResMut<NextState<SimulationState>>) {
-    next_state.set(SimulationState::Running);
 }
 
 #[derive(States, Clone, Eq, PartialEq, Hash, Debug, Default)]
