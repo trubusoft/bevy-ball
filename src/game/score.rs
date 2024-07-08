@@ -5,7 +5,7 @@ use bevy::prelude::{
 };
 use bevy::prelude::Resource;
 
-use crate::events::PlayerDead;
+use crate::game::events::PlayerDead;
 use crate::game::SimulationState;
 use crate::systems::ApplicationState;
 

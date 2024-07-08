@@ -11,6 +11,7 @@ use crate::game::star::StarPlugin;
 use crate::systems::ApplicationState;
 
 pub mod enemy;
+pub mod events;
 pub mod player;
 pub mod score;
 pub mod star;

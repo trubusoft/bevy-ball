@@ -7,7 +7,7 @@ use bevy::prelude::{
 };
 use bevy::window::PrimaryWindow;
 
-use crate::events::{CollidedWithStar, PlayerDead};
+use crate::game::events::{CollidedWithStar, PlayerDead};
 use crate::game::SimulationState;
 use crate::helpers::WindowHelper;
 
