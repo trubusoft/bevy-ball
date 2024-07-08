@@ -1,8 +1,8 @@
 use bevy::asset::AssetServer;
 use bevy::input::ButtonInput;
 use bevy::prelude::{
-    Commands, Entity, EventWriter, KeyCode, Query, Res, ResMut, Time,
-    Transform, Window, With,
+    Commands, Entity, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Time, Transform,
+    Window, With,
 };
 use bevy::window::PrimaryWindow;
 
@@ -11,7 +11,7 @@ use crate::helpers::{AudioHelper, MovementHelper};
 use crate::player::components::{Player, PLAYER_SIZE, PLAYER_SPEED};
 use crate::score::components::Score;
 use crate::star::components::{Star, STAR_SIZE};
-use crate::system::events::GameOver;
+use crate::system::events::{CollidedWithStar, GameOver};
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -52,7 +52,7 @@ pub fn on_player_hit_enemy(
     enemy_query: Query<&Transform, With<Enemy>>,
     asset_server: Res<AssetServer>,
     mut game_over_event_writter: EventWriter<GameOver>,
-    score: Res<Score>,
+    mut score: Option<Res<Score>>,
 ) {
     if let Ok((player_entity, player_transform)) = player_query.get_single_mut() {
         for enemy_transform in enemy_query.iter() {
@@ -66,18 +66,18 @@ pub fn on_player_hit_enemy(
             if is_collided {
                 commands.spawn(AudioHelper::play_game_over_sound(&asset_server));
                 commands.entity(player_entity).despawn();
-                game_over_event_writter.send(GameOver { score: score.value });
+                if let Some(score) = &mut score {
+                    game_over_event_writter.send(GameOver { score: score.value });
+                }
             }
         }
     }
 }
 
-pub fn on_player_hit_star(
-    mut commands: Commands,
+pub fn on_player_hit_star_emit_star_collide_event(
     player_query: Query<&Transform, With<Player>>,
     star_query: Query<(Entity, &Transform), With<Star>>,
-    asset_server: Res<AssetServer>,
-    mut score: ResMut<Score>,
+    mut event_writer: EventWriter<CollidedWithStar>,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for (star_entity, star_transform) in star_query.iter() {
@@ -89,10 +89,33 @@ pub fn on_player_hit_star(
             );
 
             if is_collided {
-                commands.spawn(AudioHelper::play_obtain_star_sound(&asset_server));
-                commands.entity(star_entity).despawn();
-                score.value += 1;
+                event_writer.send(CollidedWithStar { star_entity });
             }
         }
+    }
+}
+
+pub fn on_star_collide_event_despawn_star(
+    mut commands: Commands,
+    mut event_reader: EventReader<CollidedWithStar>,
+    asset_server: Res<AssetServer>,
+) {
+    for event in event_reader.read() {
+        let star_entity = event.star_entity;
+        commands.spawn(AudioHelper::play_obtain_star_sound(&asset_server));
+        commands.entity(star_entity).despawn();
+    }
+}
+
+pub fn on_star_collide_event_add_score(
+    mut score: Option<ResMut<Score>>,
+    mut event_reader: EventReader<CollidedWithStar>,
+) {
+    let Some(score) = &mut score else {
+        return;
+    };
+
+    for _event in event_reader.read() {
+        score.value += 1;
     }
 }
