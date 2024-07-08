@@ -10,8 +10,8 @@ pub struct ScorePlugin;
 
 impl Plugin for ScorePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(ApplicationState::InGame), insert_score)
-            .add_systems(OnExit(ApplicationState::InGame), remove_score)
+        app.add_systems(OnEnter(ApplicationState::InGame), insert_score_resource)
+            .add_systems(OnExit(ApplicationState::InGame), remove_score_resource)
             .add_systems(
                 Update,
                 on_score_change_print
@@ -32,16 +32,16 @@ impl Default for Score {
     }
 }
 
+pub fn insert_score_resource(mut commands: Commands) {
+    commands.insert_resource(Score::default());
+}
+
+pub fn remove_score_resource(mut commands: Commands) {
+    commands.remove_resource::<Score>();
+}
+
 pub fn on_score_change_print(score: Res<Score>) {
     if score.is_changed() {
         info!("Score updated: {}", score.value);
     }
-}
-
-pub fn insert_score(mut commands: Commands) {
-    commands.insert_resource(Score::default());
-}
-
-pub fn remove_score(mut commands: Commands) {
-    commands.remove_resource::<Score>();
 }
