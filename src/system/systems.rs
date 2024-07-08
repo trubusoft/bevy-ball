@@ -7,6 +7,7 @@ use bevy::prelude::{
 use bevy::window::PrimaryWindow;
 
 use crate::ApplicationState;
+use crate::game::SimulationState;
 use crate::helpers::WindowHelper;
 use crate::system::components::Despawn;
 
@@ -61,11 +62,9 @@ pub fn transition_to_main_menu_state(
         println!("Entered ApplicationState::MainMenu state");
         match state.get() {
             ApplicationState::MainMenu => {}
-            ApplicationState::InGame => {
+            _ => {
                 commands.insert_resource(NextState(Some(ApplicationState::MainMenu)));
-            }
-            ApplicationState::GameOver => {
-                commands.insert_resource(NextState(Some(ApplicationState::MainMenu)));
+                commands.insert_resource(NextState(Some(SimulationState::Paused)));
             }
         }
     }
