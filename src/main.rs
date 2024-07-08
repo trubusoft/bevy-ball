@@ -10,7 +10,8 @@ use bevy_ball::system::SystemPlugin;
 fn main() {
     // Debug::main();
     // Debug::debug_system_plugin();
-    Debug::debug_player_plugin();
+    // Debug::debug_player();
+    Debug::debug_player_and_star();
 }
 
 struct Debug;
@@ -35,11 +36,20 @@ impl Debug {
             .run();
     }
 
-    fn debug_player_plugin() {
+    fn debug_player() {
         App::new()
             .add_plugins(DefaultPlugins)
             .add_plugins(SystemPlugin)
             .add_plugins(PlayerPlugin)
+            .run();
+    }
+
+    fn debug_player_and_star() {
+        App::new()
+            .add_plugins(DefaultPlugins)
+            .add_plugins(SystemPlugin)
+            .add_plugins(PlayerPlugin)
+            .add_plugins(StarPlugin)
             .run();
     }
 }

@@ -12,8 +12,9 @@ impl Plugin for PlayerPlugin {
             .add_systems(Update, systems::player_movement)
             .add_systems(Update, systems::confine_player_movement)
             .add_systems(Update, systems::on_player_hit_enemy)
-            .add_systems(Update, systems::on_player_hit_star_emit_star_collide_event)
-            .add_systems(Update, systems::on_star_collide_event_despawn_star)
+            .add_systems(Update, systems::on_hit_star_emit_collide_event)
+            .add_systems(Update, systems::on_star_collide_despawn_star)
+            .add_systems(Update, systems::on_star_collide_play_star_despawn_sound)
             .add_systems(Update, systems::on_star_collide_event_add_score);
     }
 }

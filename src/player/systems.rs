@@ -2,7 +2,7 @@ use bevy::asset::AssetServer;
 use bevy::input::ButtonInput;
 use bevy::prelude::{
     Commands, Entity, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Time, Transform,
-    Window, With,
+    Window, With, Without,
 };
 use bevy::window::PrimaryWindow;
 
@@ -11,6 +11,7 @@ use crate::helpers::{AudioHelper, MovementHelper};
 use crate::player::components::{Player, PLAYER_SIZE, PLAYER_SPEED};
 use crate::score::components::Score;
 use crate::star::components::{Star, STAR_SIZE};
+use crate::system::components::Despawn;
 use crate::system::events::{CollidedWithStar, GameOver};
 
 pub fn spawn_player(
@@ -74,9 +75,9 @@ pub fn on_player_hit_enemy(
     }
 }
 
-pub fn on_player_hit_star_emit_star_collide_event(
+pub fn on_hit_star_emit_collide_event(
     player_query: Query<&Transform, With<Player>>,
-    star_query: Query<(Entity, &Transform), With<Star>>,
+    star_query: Query<(Entity, &Transform), (With<Star>, Without<Despawn>)>,
     mut event_writer: EventWriter<CollidedWithStar>,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
@@ -95,15 +96,25 @@ pub fn on_player_hit_star_emit_star_collide_event(
     }
 }
 
-pub fn on_star_collide_event_despawn_star(
+pub fn on_star_collide_despawn_star(
+    mut commands: Commands,
+    mut event_reader: EventReader<CollidedWithStar>,
+) {
+    for event in event_reader.read() {
+        let star_entity = event.star_entity;
+        if let Some(mut entity_commands) = commands.get_entity(star_entity) {
+            entity_commands.despawn();
+        }
+    }
+}
+
+pub fn on_star_collide_play_star_despawn_sound(
     mut commands: Commands,
     mut event_reader: EventReader<CollidedWithStar>,
     asset_server: Res<AssetServer>,
 ) {
-    for event in event_reader.read() {
-        let star_entity = event.star_entity;
+    for _event in event_reader.read() {
         commands.spawn(AudioHelper::play_obtain_star_sound(&asset_server));
-        commands.entity(star_entity).despawn();
     }
 }
 
