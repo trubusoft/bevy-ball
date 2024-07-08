@@ -2,15 +2,14 @@ use bevy::app::{App, Update};
 use bevy::asset::AssetServer;
 use bevy::input::ButtonInput;
 use bevy::prelude::{
-    Commands, Component, default, Entity, EventReader, EventWriter, KeyCode, Query, Res, ResMut,
-    SpriteBundle, Time, Transform, Window, With, Without,
+    Commands, Component, default, Entity, Event, EventReader, EventWriter, KeyCode, Query, Res,
+    ResMut, SpriteBundle, Time, Transform, Window, With, Without,
 };
 use bevy::prelude::{in_state, IntoSystemConfigs, OnEnter, OnExit, Plugin};
 use bevy::window::PrimaryWindow;
 
 use crate::{ApplicationState, ScheduleDespawn};
 use crate::game::enemy::{Enemy, ENEMY_SIZE};
-use crate::game::events::{CollidedWithStar, PlayerDead};
 use crate::game::score::Score;
 use crate::game::SimulationState;
 use crate::game::star::{Star, STAR_SIZE};
@@ -48,6 +47,16 @@ impl Plugin for PlayerPlugin {
                     .run_if(in_state(SimulationState::Running)),
             );
     }
+}
+
+#[derive(Event)]
+pub struct PlayerDead {
+    pub score: u32,
+}
+
+#[derive(Event)]
+pub struct CollidedWithStar {
+    pub star_entity: Entity,
 }
 
 pub const PLAYER_SPEED: f32 = 500.0;

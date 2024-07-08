@@ -1,11 +1,12 @@
 use bevy::app::{App, AppExit, Plugin, PostUpdate, Startup, Update};
 use bevy::input::ButtonInput;
-use bevy::log::info;
 use bevy::prelude::{
-    Camera2dBundle, Commands, Component, default, Entity, EventWriter, KeyCode, NextState, Query,
-    Res, ResMut, State, States, Window, With,
+    Camera2dBundle, Commands, Component, default, Entity, EventReader, EventWriter, info, KeyCode,
+    NextState, Query, Res, ResMut, State, States, Window, With,
 };
 use bevy::window::PrimaryWindow;
+
+use game::player::PlayerDead;
 
 use crate::helpers::WindowHelper;
 

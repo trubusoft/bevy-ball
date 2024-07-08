@@ -6,15 +6,16 @@ use bevy::prelude::{
     ResMut, State, States, Update,
 };
 
+use player::CollidedWithStar;
+use player::PlayerDead;
+
 use crate::ApplicationState;
 use crate::game::enemy::EnemyPlugin;
-use crate::game::events::{CollidedWithStar, PlayerDead};
 use crate::game::player::PlayerPlugin;
 use crate::game::score::ScorePlugin;
 use crate::game::star::StarPlugin;
 
 pub mod enemy;
-pub mod events;
 pub mod player;
 pub mod score;
 pub mod star;
