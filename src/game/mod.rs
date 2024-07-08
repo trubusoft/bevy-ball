@@ -1,5 +1,8 @@
 use bevy::app::App;
-use bevy::prelude::{in_state, IntoSystemConfigs, Plugin, States, Update};
+use bevy::input::ButtonInput;
+use bevy::prelude::{
+    Commands, in_state, IntoSystemConfigs, KeyCode, NextState, Plugin, Res, State, States, Update,
+};
 
 use crate::ApplicationState;
 use crate::game::enemy::EnemyPlugin;
@@ -11,7 +14,6 @@ pub mod enemy;
 pub mod player;
 pub mod score;
 pub mod star;
-pub mod systems;
 
 pub struct GamePlugin;
 
@@ -24,7 +26,7 @@ impl Plugin for GamePlugin {
             .add_plugins(ScorePlugin)
             .add_systems(
                 Update,
-                systems::toggle_simulation_state.run_if(in_state(ApplicationState::InGame)),
+                toggle_simulation_state.run_if(in_state(ApplicationState::InGame)),
             );
     }
 }
@@ -34,4 +36,23 @@ pub enum SimulationState {
     #[default]
     Running,
     Paused,
+}
+
+pub fn toggle_simulation_state(
+    mut commands: Commands,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    state: Res<State<SimulationState>>,
+) {
+    if keyboard_input.just_pressed(KeyCode::Space) {
+        match state.get() {
+            SimulationState::Running => {
+                commands.insert_resource(NextState(Some(SimulationState::Paused)));
+                println!("simulation paused");
+            }
+            SimulationState::Paused => {
+                commands.insert_resource(NextState(Some(SimulationState::Running)));
+                println!("simulation running");
+            }
+        }
+    }
 }
