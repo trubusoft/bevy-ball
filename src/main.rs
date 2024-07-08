@@ -13,8 +13,11 @@ fn main() {
     Debug::main();
     // Debug::debug_application();
     // Debug::debug_ui();
+    // Debug::debug_game();
+
+    // GamePlugin
     // Debug::debug_player();
-    // Debug::debug_player_and_star();
+    // Debug::debug_player_star();
     // Debug::debug_player_star_score();
     // Debug::debug_enemy();
 }
@@ -47,6 +50,14 @@ impl Debug {
             .run();
     }
 
+    fn debug_game() {
+        App::new()
+            .add_plugins(DefaultPlugins)
+            .add_plugins(ApplicationPlugin)
+            .add_plugins(GamePlugin)
+            .run();
+    }
+
     fn debug_player() {
         App::new()
             .add_plugins(DefaultPlugins)
@@ -55,7 +66,7 @@ impl Debug {
             .run();
     }
 
-    fn debug_player_and_star() {
+    fn debug_player_star() {
         App::new()
             .add_plugins(DefaultPlugins)
             .add_plugins(ApplicationPlugin)
