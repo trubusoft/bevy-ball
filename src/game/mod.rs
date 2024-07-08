@@ -1,5 +1,5 @@
 use bevy::app::App;
-use bevy::prelude::Plugin;
+use bevy::prelude::{in_state, IntoSystemConfigs, Plugin, States, Update};
 
 use crate::game::enemy::EnemyPlugin;
 use crate::game::player::PlayerPlugin;
@@ -15,9 +15,17 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(PlayerPlugin)
+        app.init_state::<SimulationState>()
+            .add_plugins(PlayerPlugin)
             .add_plugins(EnemyPlugin)
             .add_plugins(StarPlugin)
             .add_plugins(ScorePlugin);
     }
+}
+
+#[derive(States, Clone, Eq, PartialEq, Hash, Debug, Default)]
+pub enum SimulationState {
+    Running,
+    #[default]
+    Paused,
 }
