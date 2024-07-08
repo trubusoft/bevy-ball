@@ -6,8 +6,8 @@ use bevy::prelude::{
 use bevy::prelude::Resource;
 
 use crate::ApplicationState;
+use crate::game::GameState;
 use crate::game::player::CollidedWithEnemy;
-use crate::game::SimulationState;
 
 pub struct ScorePlugin;
 
@@ -19,7 +19,7 @@ impl Plugin for ScorePlugin {
                 Update,
                 on_score_change
                     .run_if(in_state(ApplicationState::InGame))
-                    .run_if(in_state(SimulationState::Running)),
+                    .run_if(in_state(GameState::Running)),
             )
             .init_resource::<HighScore>()
             .add_systems(Update, on_collided_with_enemy_set_pause)
@@ -66,10 +66,10 @@ pub fn on_score_change(score: Res<Score>) {
 
 pub fn on_collided_with_enemy_set_pause(
     mut event_reader: EventReader<CollidedWithEnemy>,
-    mut next_state: ResMut<NextState<SimulationState>>,
+    mut next_state: ResMut<NextState<GameState>>,
 ) {
     for _event in event_reader.read() {
-        next_state.set(SimulationState::Paused);
+        next_state.set(GameState::Paused);
     }
 }
 

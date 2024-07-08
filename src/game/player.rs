@@ -10,8 +10,8 @@ use bevy::window::PrimaryWindow;
 
 use crate::{ApplicationState, ScheduleDespawn};
 use crate::game::enemy::{Enemy, ENEMY_SIZE};
+use crate::game::GameState;
 use crate::game::score::Score;
-use crate::game::SimulationState;
 use crate::game::star::{Star, STAR_SIZE};
 use crate::helpers::{AudioHelper, MovementHelper};
 use crate::helpers::{SpriteHelper, WindowHelper};
@@ -29,14 +29,14 @@ impl Plugin for PlayerPlugin {
                 (player_movement, confine_player_movement)
                     .chain()
                     .run_if(in_state(ApplicationState::InGame))
-                    .run_if(in_state(SimulationState::Running)),
+                    .run_if(in_state(GameState::Running)),
             )
             .add_systems(
                 Update,
                 (on_hit_star_emit_collide_event, on_star_collide_despawn_star)
                     .chain()
                     .run_if(in_state(ApplicationState::InGame))
-                    .run_if(in_state(SimulationState::Running)),
+                    .run_if(in_state(GameState::Running)),
             )
             .add_systems(
                 Update,
@@ -46,7 +46,7 @@ impl Plugin for PlayerPlugin {
                     on_star_collide_event_add_score,
                 )
                     .run_if(in_state(ApplicationState::InGame))
-                    .run_if(in_state(SimulationState::Running)),
+                    .run_if(in_state(GameState::Running)),
             );
     }
 }

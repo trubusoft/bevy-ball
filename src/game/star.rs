@@ -7,7 +7,7 @@ use bevy::prelude::{
 use bevy::window::PrimaryWindow;
 
 use crate::{ApplicationState, ScheduleDespawn};
-use crate::game::SimulationState;
+use crate::game::GameState;
 use crate::helpers::RandomHelper;
 
 pub struct StarPlugin;
@@ -21,7 +21,7 @@ impl Plugin for StarPlugin {
                 Update,
                 (tick_spawn_stars_overtime, spawn_stars_overtime)
                     .run_if(in_state(ApplicationState::InGame))
-                    .run_if(in_state(SimulationState::Running)),
+                    .run_if(in_state(GameState::Running)),
             );
     }
 }

@@ -9,7 +9,7 @@ use bevy::prelude::{Commands, Entity, Query, Res, ResMut, Time, Transform, Windo
 use bevy::window::PrimaryWindow;
 
 use crate::{ApplicationState, ScheduleDespawn};
-use crate::game::SimulationState;
+use crate::game::GameState;
 use crate::helpers::{AudioHelper, MovementHelper};
 use crate::helpers::{RandomHelper, SpriteHelper};
 
@@ -30,7 +30,7 @@ impl Plugin for EnemyPlugin {
                     spawn_enemy_overtime,
                 )
                     .run_if(in_state(ApplicationState::InGame))
-                    .run_if(in_state(SimulationState::Running)),
+                    .run_if(in_state(GameState::Running)),
             );
     }
 }

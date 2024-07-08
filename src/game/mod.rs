@@ -21,7 +21,7 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.init_state::<SimulationState>()
+        app.init_state::<GameState>()
             .add_plugins(PlayerPlugin)
             .add_plugins(EnemyPlugin)
             .add_plugins(StarPlugin)
@@ -36,7 +36,7 @@ impl Plugin for GamePlugin {
 }
 
 #[derive(States, Clone, Eq, PartialEq, Hash, Debug, Default)]
-pub enum SimulationState {
+pub enum GameState {
     #[default]
     Running,
     Paused,
@@ -45,26 +45,26 @@ pub enum SimulationState {
 pub fn toggle_simulation(
     mut commands: Commands,
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    state: Res<State<SimulationState>>,
+    state: Res<State<GameState>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Space) {
         match state.get() {
-            SimulationState::Running => {
-                commands.insert_resource(NextState(Some(SimulationState::Paused)));
-                info!("{:?}", SimulationState::Paused);
+            GameState::Running => {
+                commands.insert_resource(NextState(Some(GameState::Paused)));
+                info!("{:?}", GameState::Paused);
             }
-            SimulationState::Paused => {
-                commands.insert_resource(NextState(Some(SimulationState::Running)));
-                info!("{:?}", SimulationState::Running);
+            GameState::Paused => {
+                commands.insert_resource(NextState(Some(GameState::Running)));
+                info!("{:?}", GameState::Running);
             }
         }
     }
 }
 
-pub fn pause_simulation(mut next_state: ResMut<NextState<SimulationState>>) {
-    next_state.set(SimulationState::Paused);
+pub fn pause_simulation(mut next_state: ResMut<NextState<GameState>>) {
+    next_state.set(GameState::Paused);
 }
 
-pub fn resume_simulation(mut next_state: ResMut<NextState<SimulationState>>) {
-    next_state.set(SimulationState::Running);
+pub fn resume_simulation(mut next_state: ResMut<NextState<GameState>>) {
+    next_state.set(GameState::Running);
 }
