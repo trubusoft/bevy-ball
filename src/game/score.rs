@@ -64,15 +64,6 @@ pub fn on_score_change(score: Res<Score>) {
     }
 }
 
-pub fn on_collided_with_enemy_set_pause(
-    mut event_reader: EventReader<CollidedWithEnemy>,
-    mut next_state: ResMut<NextState<GameState>>,
-) {
-    for _event in event_reader.read() {
-        next_state.set(GameState::Paused);
-    }
-}
-
 pub fn on_collided_with_enemy_update_high_score(
     mut event_reader: EventReader<CollidedWithEnemy>,
     mut high_score: ResMut<HighScore>,

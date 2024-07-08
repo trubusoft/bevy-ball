@@ -2,17 +2,19 @@ use bevy::app::App;
 use bevy::input::ButtonInput;
 use bevy::log::info;
 use bevy::prelude::{
-    in_state, IntoSystemConfigs, KeyCode, NextState, OnEnter, OnExit, Plugin, Res, ResMut, State,
-    States, Update,
+    EventReader, in_state, IntoSystemConfigs, KeyCode, NextState, OnEnter, OnExit, Plugin, Res,
+    ResMut, State, States, Update,
 };
 
-use crate::ApplicationState;
+use crate::{ApplicationState, game};
 use crate::game::enemy::EnemyPlugin;
-use crate::game::player::PlayerPlugin;
+use crate::game::high_score::HighScorePlugin;
+use crate::game::player::{CollidedWithEnemy, PlayerPlugin};
 use crate::game::score::ScorePlugin;
 use crate::game::star::StarPlugin;
 
 pub mod enemy;
+pub mod high_score;
 pub mod player;
 pub mod score;
 pub mod star;
@@ -31,7 +33,8 @@ impl Plugin for GamePlugin {
             .add_systems(
                 Update,
                 toggle_pause.run_if(in_state(ApplicationState::InGame)),
-            );
+            )
+            .add_systems(Update, on_collided_with_enemy_set_pause);
     }
 }
 
@@ -67,4 +70,13 @@ pub fn pause_game(mut next_state: ResMut<NextState<GameState>>) {
 pub fn resume_game(mut next_state: ResMut<NextState<GameState>>) {
     next_state.set(GameState::Running);
     info!("{:?}", GameState::Running);
+}
+
+pub fn on_collided_with_enemy_set_pause(
+    mut event_reader: EventReader<CollidedWithEnemy>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    for _event in event_reader.read() {
+        next_state.set(GameState::Paused);
+    }
 }
