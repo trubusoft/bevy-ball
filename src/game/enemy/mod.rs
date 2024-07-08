@@ -1,5 +1,5 @@
-use bevy::app::{App, Startup, Update};
-use bevy::prelude::{in_state, IntoSystemConfigs, Plugin};
+use bevy::app::{App, Update};
+use bevy::prelude::{in_state, IntoSystemConfigs, OnEnter, OnExit, Plugin};
 
 use crate::ApplicationState;
 use crate::game::enemy::components::EnemySpawnTimer;
@@ -13,7 +13,14 @@ pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<EnemySpawnTimer>()
-            .add_systems(Startup, systems::spawn_initial_enemies)
+            .add_systems(
+                OnEnter(ApplicationState::InGame),
+                systems::spawn_initial_enemies,
+            )
+            .add_systems(
+                OnExit(ApplicationState::InGame),
+                systems::despawn_all_enemies,
+            )
             .add_systems(
                 Update,
                 (

@@ -1,11 +1,12 @@
 use bevy::asset::AssetServer;
-use bevy::prelude::{Commands, Query, Res, ResMut, Time, Transform, Window, With};
+use bevy::prelude::{Commands, Entity, Query, Res, ResMut, Time, Transform, Window, With};
 use bevy::window::PrimaryWindow;
 
 use crate::game::enemy::components::{
     Enemy, ENEMY_SIZE, ENEMY_SPEED, EnemySpawnTimer, NUMBER_OF_ENEMIES,
 };
 use crate::helpers::{AudioHelper, MovementHelper};
+use crate::system::components::Despawn;
 
 pub fn spawn_initial_enemies(
     mut commands: Commands,
@@ -84,5 +85,11 @@ pub fn spawn_enemy_overtime(
         if let Ok(window) = window_query.get_single() {
             commands.spawn(Enemy::at_randomized_location(window, &asset_server));
         }
+    }
+}
+
+pub fn despawn_all_enemies(mut commands: Commands, query: Query<Entity, With<Enemy>>) {
+    for enemy_entity in query.iter() {
+        commands.entity(enemy_entity).insert(Despawn {});
     }
 }
