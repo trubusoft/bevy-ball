@@ -15,6 +15,8 @@ impl Plugin for SystemPlugin {
             .add_event::<GameOver>()
             .add_systems(Startup, systems::spawn_camera)
             .add_systems(Update, systems::on_escape_exit)
-            .add_systems(PostUpdate, systems::despawn_entity);
+            .add_systems(PostUpdate, systems::despawn_entity)
+            .add_systems(Update, systems::transition_to_ingame_state)
+            .add_systems(Update, systems::transition_to_main_menu_state);
     }
 }
