@@ -6,9 +6,9 @@ use bevy::prelude::{
 };
 use bevy::window::PrimaryWindow;
 
+use crate::{ApplicationState, Despawn};
 use crate::game::SimulationState;
 use crate::helpers::RandomHelper;
-use crate::systems::{ApplicationState, Despawn};
 
 pub struct StarPlugin;
 

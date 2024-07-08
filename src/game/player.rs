@@ -8,6 +8,7 @@ use bevy::prelude::{
 use bevy::prelude::{in_state, IntoSystemConfigs, OnEnter, OnExit, Plugin};
 use bevy::window::PrimaryWindow;
 
+use crate::{ApplicationState, Despawn};
 use crate::game::enemy::{Enemy, ENEMY_SIZE};
 use crate::game::events::{CollidedWithStar, PlayerDead};
 use crate::game::score::Score;
@@ -15,7 +16,6 @@ use crate::game::SimulationState;
 use crate::game::star::{Star, STAR_SIZE};
 use crate::helpers::{AudioHelper, MovementHelper};
 use crate::helpers::{SpriteHelper, WindowHelper};
-use crate::systems::{ApplicationState, Despawn};
 
 pub struct PlayerPlugin;
 
