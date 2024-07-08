@@ -4,8 +4,8 @@ use bevy::prelude::{
 };
 use bevy::window::PrimaryWindow;
 
+use crate::game::star::components::{NUMBER_OF_STARS, Star, StarSpawnTimer};
 use crate::helpers::RandomHelper;
-use crate::star::components::{NUMBER_OF_STARS, Star, StarSpawnTimer};
 
 pub fn spawn_initial_stars(
     mut commands: Commands,

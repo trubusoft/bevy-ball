@@ -1,6 +1,6 @@
 use bevy::prelude::{DetectChanges, EventReader, Res, ResMut};
 
-use crate::score::components::{HighScore, Score};
+use crate::game::score::components::{HighScore, Score};
 use crate::system::events::GameOver;
 
 pub fn on_score_change(score: Res<Score>) {

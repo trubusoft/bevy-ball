@@ -1,7 +1,7 @@
 use bevy::app::{App, Update};
 use bevy::prelude::Plugin;
 
-use crate::score::components::{HighScore, Score};
+use crate::game::score::components::{HighScore, Score};
 
 pub mod components;
 mod systems;

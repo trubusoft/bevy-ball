@@ -6,11 +6,11 @@ use bevy::prelude::{
 };
 use bevy::window::PrimaryWindow;
 
-use crate::enemy::components::{Enemy, ENEMY_SIZE};
+use crate::game::enemy::components::{Enemy, ENEMY_SIZE};
+use crate::game::player::components::{Player, PLAYER_SIZE, PLAYER_SPEED};
+use crate::game::score::components::Score;
+use crate::game::star::components::{Star, STAR_SIZE};
 use crate::helpers::{AudioHelper, MovementHelper};
-use crate::player::components::{Player, PLAYER_SIZE, PLAYER_SPEED};
-use crate::score::components::Score;
-use crate::star::components::{Star, STAR_SIZE};
 use crate::system::components::Despawn;
 use crate::system::events::{CollidedWithStar, GameOver};
 

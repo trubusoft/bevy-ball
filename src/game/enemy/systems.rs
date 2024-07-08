@@ -2,7 +2,7 @@ use bevy::asset::AssetServer;
 use bevy::prelude::{Commands, Query, Res, ResMut, Time, Transform, Window, With};
 use bevy::window::PrimaryWindow;
 
-use crate::enemy::components::{
+use crate::game::enemy::components::{
     Enemy, ENEMY_SIZE, ENEMY_SPEED, EnemySpawnTimer, NUMBER_OF_ENEMIES,
 };
 use crate::helpers::{AudioHelper, MovementHelper};

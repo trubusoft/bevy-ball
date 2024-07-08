@@ -1,7 +1,7 @@
 use bevy::app::{App, Startup, Update};
 use bevy::prelude::Plugin;
 
-use crate::enemy::components::EnemySpawnTimer;
+use crate::game::enemy::components::EnemySpawnTimer;
 
 pub mod components;
 mod systems;
