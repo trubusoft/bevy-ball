@@ -1,12 +1,88 @@
+use bevy::app::{App, Update};
 use bevy::asset::AssetServer;
+use bevy::math::Vec3;
+use bevy::prelude::{
+    Component, default, in_state, IntoSystemConfigs, OnEnter, OnExit, Plugin, Resource,
+    SpriteBundle, Timer, TimerMode,
+};
 use bevy::prelude::{Commands, Entity, Query, Res, ResMut, Time, Transform, Window, With};
 use bevy::window::PrimaryWindow;
 
-use crate::game::enemy::components::{
-    Enemy, ENEMY_SIZE, ENEMY_SPEED, EnemySpawnTimer, NUMBER_OF_ENEMIES,
-};
+use crate::ApplicationState;
+use crate::game::SimulationState;
 use crate::helpers::{AudioHelper, MovementHelper};
+use crate::helpers::{RandomHelper, SpriteHelper};
 use crate::system::components::Despawn;
+
+pub struct EnemyPlugin;
+
+impl Plugin for EnemyPlugin {
+    fn build(&self, app: &mut App) {
+        app.init_resource::<EnemySpawnTimer>()
+            .add_systems(OnEnter(ApplicationState::InGame), spawn_initial_enemies)
+            .add_systems(OnExit(ApplicationState::InGame), despawn_all_enemies)
+            .add_systems(
+                Update,
+                (
+                    enemy_movement,
+                    confine_enemy_movement,
+                    update_enemy_direction_when_out_of_bound,
+                    tick_spawn_enemy_overtime,
+                    spawn_enemy_overtime,
+                )
+                    .run_if(in_state(ApplicationState::InGame))
+                    .run_if(in_state(SimulationState::Running)),
+            );
+    }
+}
+
+pub const NUMBER_OF_ENEMIES: usize = 4;
+pub const ENEMY_SPEED: f32 = 200.0;
+pub const ENEMY_SIZE: f32 = 64.0;
+pub const ENEMY_SPAWN_TIME: f32 = 5.0;
+
+#[derive(Component)]
+pub struct Enemy {
+    pub direction: Vec3,
+}
+
+impl Enemy {
+    pub fn randomize_direction() -> Vec3 {
+        Vec3::new(RandomHelper::random_f32(), RandomHelper::random_f32(), 0.0).normalize()
+    }
+
+    pub fn at_randomized_location(
+        window: &Window,
+        asset_server: &Res<AssetServer>,
+    ) -> (Enemy, SpriteBundle) {
+        let random_x = RandomHelper::random_f32() * window.width();
+        let random_y = RandomHelper::random_f32() * window.height();
+
+        (
+            Enemy {
+                direction: Self::randomize_direction(),
+            },
+            SpriteBundle {
+                transform: Transform::from_xyz(random_x, random_y, 0.0),
+                texture: asset_server.load(SpriteHelper::enemy_sprite()),
+                ..default()
+            },
+        )
+    }
+}
+
+#[derive(Resource)]
+pub struct EnemySpawnTimer {
+    pub timer: Timer,
+}
+
+impl Default for EnemySpawnTimer {
+    fn default() -> Self {
+        Self {
+            timer: Timer::from_seconds(ENEMY_SPAWN_TIME, TimerMode::Repeating),
+        }
+    }
+}
 
 pub fn spawn_initial_enemies(
     mut commands: Commands,
