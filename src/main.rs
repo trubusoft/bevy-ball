@@ -1,7 +1,7 @@
 use bevy::DefaultPlugins;
 use bevy::prelude::App;
 
-use bevy_ball::{ApplicationState, SystemPlugin};
+use bevy_ball::{ApplicationPlugin, ApplicationState};
 use bevy_ball::game::enemy::EnemyPlugin;
 use bevy_ball::game::GamePlugin;
 use bevy_ball::game::player::PlayerPlugin;
@@ -26,7 +26,7 @@ impl Debug {
         App::new()
             .init_state::<ApplicationState>()
             .add_plugins(DefaultPlugins)
-            .add_plugins(SystemPlugin)
+            .add_plugins(ApplicationPlugin)
             .add_plugins(MainMenuPlugin)
             .add_plugins(GamePlugin)
             .run();
@@ -35,14 +35,14 @@ impl Debug {
     fn debug_system_plugin() {
         App::new()
             .add_plugins(DefaultPlugins)
-            .add_plugins(SystemPlugin)
+            .add_plugins(ApplicationPlugin)
             .run();
     }
 
     fn debug_player() {
         App::new()
             .add_plugins(DefaultPlugins)
-            .add_plugins(SystemPlugin)
+            .add_plugins(ApplicationPlugin)
             .add_plugins(PlayerPlugin)
             .run();
     }
@@ -50,7 +50,7 @@ impl Debug {
     fn debug_player_and_star() {
         App::new()
             .add_plugins(DefaultPlugins)
-            .add_plugins(SystemPlugin)
+            .add_plugins(ApplicationPlugin)
             .add_plugins(PlayerPlugin)
             .add_plugins(StarPlugin)
             .run();
@@ -59,7 +59,7 @@ impl Debug {
     fn debug_player_star_score() {
         App::new()
             .add_plugins(DefaultPlugins)
-            .add_plugins(SystemPlugin)
+            .add_plugins(ApplicationPlugin)
             .add_plugins(PlayerPlugin)
             .add_plugins(StarPlugin)
             .add_plugins(ScorePlugin)
@@ -69,7 +69,7 @@ impl Debug {
     fn debug_enemy() {
         App::new()
             .add_plugins(DefaultPlugins)
-            .add_plugins(SystemPlugin)
+            .add_plugins(ApplicationPlugin)
             .add_plugins(EnemyPlugin)
             .run();
     }

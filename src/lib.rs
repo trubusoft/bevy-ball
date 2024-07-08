@@ -1,5 +1,6 @@
 use bevy::app::{App, AppExit, Plugin, PostUpdate, Startup, Update};
 use bevy::input::ButtonInput;
+use bevy::log::info;
 use bevy::prelude::{
     Camera2dBundle, Commands, Component, default, Entity, EventWriter, KeyCode, NextState, Query,
     Res, ResMut, State, States, Window, With,
@@ -12,16 +13,24 @@ pub mod game;
 pub mod helpers;
 pub mod ui;
 
-pub struct SystemPlugin;
+pub struct ApplicationPlugin;
 
-impl Plugin for SystemPlugin {
+impl Plugin for ApplicationPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_camera)
-            .add_systems(Update, on_escape_exit)
-            .add_systems(PostUpdate, despawn_entity)
-            .add_systems(Update, transition_to_in_game_state)
-            .add_systems(Update, transition_to_main_menu_state);
+            .add_systems(Update, exit_on_escape)
+            .add_systems(PostUpdate, cleanup_entity)
+            .add_systems(Update, transition_in_game_state)
+            .add_systems(Update, transition_main_menu_state);
     }
+}
+
+#[derive(States, Clone, Eq, PartialEq, Hash, Debug, Default)]
+pub enum ApplicationState {
+    #[default]
+    MainMenu,
+    InGame,
+    GameOver,
 }
 
 #[derive(Component)]
@@ -33,7 +42,16 @@ impl Default for ScheduleDespawn {
     }
 }
 
-pub fn on_escape_exit(
+pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
+    if let Ok(window) = window_query.get_single() {
+        commands.spawn(Camera2dBundle {
+            transform: WindowHelper::center(window),
+            ..default()
+        });
+    }
+}
+
+pub fn exit_on_escape(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut event_writter: EventWriter<AppExit>,
 ) {
@@ -42,36 +60,30 @@ pub fn on_escape_exit(
     }
 }
 
-pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
-    let window = window_query.get_single().unwrap();
-    commands.spawn(Camera2dBundle {
-        transform: WindowHelper::center(window),
-        ..default()
-    });
-}
-
-pub fn despawn_entity(mut commands: Commands, query: Query<Entity, With<ScheduleDespawn>>) {
+pub fn cleanup_entity(mut commands: Commands, query: Query<Entity, With<ScheduleDespawn>>) {
+    // Despawn entity that has been tagged so
     for entity in query.iter() {
         commands.entity(entity).despawn();
     }
 }
 
-pub fn transition_to_in_game_state(
-    mut application_next_state: ResMut<NextState<ApplicationState>>,
+pub fn transition_in_game_state(
+    mut next_state: ResMut<NextState<ApplicationState>>,
     button_input: Res<ButtonInput<KeyCode>>,
-    current_application_state: Res<State<ApplicationState>>,
+    current_state: Res<State<ApplicationState>>,
 ) {
     if button_input.just_pressed(KeyCode::KeyG) {
-        match current_application_state.get() {
+        match current_state.get() {
             ApplicationState::MainMenu | ApplicationState::GameOver => {
-                application_next_state.set(ApplicationState::InGame);
+                next_state.set(ApplicationState::InGame);
+                info!("{:?}", ApplicationState::InGame);
             }
             _ => {}
         }
     }
 }
 
-pub fn transition_to_main_menu_state(
+pub fn transition_main_menu_state(
     mut application_next_state: ResMut<NextState<ApplicationState>>,
     button_input: Res<ButtonInput<KeyCode>>,
     current_application_state: Res<State<ApplicationState>>,
@@ -79,18 +91,10 @@ pub fn transition_to_main_menu_state(
     if button_input.just_pressed(KeyCode::KeyM) {
         match current_application_state.get() {
             ApplicationState::InGame | ApplicationState::GameOver => {
-                println!("Entered ApplicationState::MainMenu state");
                 application_next_state.set(ApplicationState::MainMenu);
+                info!("{:?}", ApplicationState::MainMenu);
             }
             _ => {}
         }
     }
-}
-
-#[derive(States, Clone, Eq, PartialEq, Hash, Debug, Default)]
-pub enum ApplicationState {
-    #[default]
-    MainMenu,
-    InGame,
-    GameOver,
 }
