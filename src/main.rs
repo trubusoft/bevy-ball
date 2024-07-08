@@ -2,6 +2,7 @@ use bevy::DefaultPlugins;
 use bevy::prelude::App;
 
 use bevy_ball::game::enemy::EnemyPlugin;
+use bevy_ball::game::GamePlugin;
 use bevy_ball::game::player::PlayerPlugin;
 use bevy_ball::game::score::ScorePlugin;
 use bevy_ball::game::star::StarPlugin;
@@ -24,10 +25,7 @@ impl Debug {
         App::new()
             .add_plugins(DefaultPlugins)
             .add_plugins(SystemPlugin)
-            .add_plugins(PlayerPlugin)
-            .add_plugins(EnemyPlugin)
-            .add_plugins(StarPlugin)
-            .add_plugins(ScorePlugin)
+            .add_plugins(GamePlugin)
             .run();
     }
 
