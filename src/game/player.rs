@@ -10,7 +10,7 @@ use bevy::window::PrimaryWindow;
 
 use crate::ApplicationState;
 use crate::game::enemy::{Enemy, ENEMY_SIZE};
-use crate::game::score::components::Score;
+use crate::game::score::Score;
 use crate::game::SimulationState;
 use crate::game::star::components::{Star, STAR_SIZE};
 use crate::helpers::{AudioHelper, MovementHelper};
