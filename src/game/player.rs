@@ -12,7 +12,7 @@ use crate::ApplicationState;
 use crate::game::enemy::{Enemy, ENEMY_SIZE};
 use crate::game::score::Score;
 use crate::game::SimulationState;
-use crate::game::star::components::{Star, STAR_SIZE};
+use crate::game::star::{Star, STAR_SIZE};
 use crate::helpers::{AudioHelper, MovementHelper};
 use crate::helpers::{SpriteHelper, WindowHelper};
 use crate::system::components::Despawn;
