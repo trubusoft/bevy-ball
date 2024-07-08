@@ -26,11 +26,11 @@ impl Plugin for GamePlugin {
             .add_plugins(EnemyPlugin)
             .add_plugins(StarPlugin)
             .add_plugins(ScorePlugin)
-            .add_systems(OnEnter(ApplicationState::InGame), resume_simulation)
-            .add_systems(OnExit(ApplicationState::InGame), pause_simulation)
+            .add_systems(OnEnter(ApplicationState::InGame), resume_game)
+            .add_systems(OnExit(ApplicationState::InGame), pause_game)
             .add_systems(
                 Update,
-                toggle_simulation.run_if(in_state(ApplicationState::InGame)),
+                toggle_pause.run_if(in_state(ApplicationState::InGame)),
             );
     }
 }
@@ -42,7 +42,7 @@ pub enum GameState {
     Paused,
 }
 
-pub fn toggle_simulation(
+pub fn toggle_pause(
     mut commands: Commands,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     state: Res<State<GameState>>,
@@ -61,10 +61,10 @@ pub fn toggle_simulation(
     }
 }
 
-pub fn pause_simulation(mut next_state: ResMut<NextState<GameState>>) {
+pub fn pause_game(mut next_state: ResMut<NextState<GameState>>) {
     next_state.set(GameState::Paused);
 }
 
-pub fn resume_simulation(mut next_state: ResMut<NextState<GameState>>) {
+pub fn resume_game(mut next_state: ResMut<NextState<GameState>>) {
     next_state.set(GameState::Running);
 }
