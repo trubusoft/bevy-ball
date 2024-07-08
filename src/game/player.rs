@@ -115,12 +115,12 @@ pub fn movement(
 }
 
 pub fn on_hit_enemy_emit_collide_event(
-    mut player_query: Query<&Transform, With<Player>>,
-    enemy_query: Query<&Transform, With<Enemy>>,
     mut event_writer: EventWriter<CollidedWithEnemy>,
-    mut score: Option<Res<Score>>,
+    score: Option<Res<Score>>,
+    player_query: Query<&Transform, With<Player>>,
+    enemy_query: Query<&Transform, With<Enemy>>,
 ) {
-    if let Ok(player_transform) = player_query.get_single_mut() {
+    if let Ok(player_transform) = player_query.get_single() {
         for enemy_transform in enemy_query.iter() {
             let is_collided = MovementHelper::is_collided(
                 PLAYER_SIZE,
@@ -130,7 +130,7 @@ pub fn on_hit_enemy_emit_collide_event(
             );
 
             if is_collided {
-                if let Some(score) = &mut score {
+                if let Some(score) = &score {
                     event_writer.send(CollidedWithEnemy { score: score.value });
                 } else {
                     event_writer.send(CollidedWithEnemy { score: 0 });
