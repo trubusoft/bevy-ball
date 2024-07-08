@@ -1,18 +1,77 @@
+use bevy::app::{App, Update};
 use bevy::asset::AssetServer;
 use bevy::input::ButtonInput;
 use bevy::prelude::{
-    Commands, Entity, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Time, Transform,
-    Window, With, Without,
+    Commands, Component, default, Entity, EventReader, EventWriter, KeyCode, Query, Res, ResMut,
+    SpriteBundle, Time, Transform, Window, With, Without,
 };
+use bevy::prelude::{in_state, IntoSystemConfigs, OnEnter, OnExit, Plugin};
 use bevy::window::PrimaryWindow;
 
-use crate::game::enemy::components::{Enemy, ENEMY_SIZE};
-use crate::game::player::components::{Player, PLAYER_SIZE, PLAYER_SPEED};
+use crate::ApplicationState;
+use crate::game::enemy::{Enemy, ENEMY_SIZE};
 use crate::game::score::components::Score;
+use crate::game::SimulationState;
 use crate::game::star::components::{Star, STAR_SIZE};
 use crate::helpers::{AudioHelper, MovementHelper};
+use crate::helpers::{SpriteHelper, WindowHelper};
 use crate::system::components::Despawn;
 use crate::system::events::{CollidedWithStar, PlayerDead};
+
+pub struct PlayerPlugin;
+
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(OnEnter(ApplicationState::InGame), spawn_player)
+            .add_systems(OnExit(ApplicationState::InGame), despawn_player)
+            .add_systems(
+                Update,
+                (player_movement, confine_player_movement)
+                    .chain()
+                    .run_if(in_state(ApplicationState::InGame))
+                    .run_if(in_state(SimulationState::Running)),
+            )
+            .add_systems(
+                Update,
+                (on_hit_star_emit_collide_event, on_star_collide_despawn_star)
+                    .chain()
+                    .run_if(in_state(ApplicationState::InGame))
+                    .run_if(in_state(SimulationState::Running)),
+            )
+            .add_systems(
+                Update,
+                (
+                    on_player_hit_enemy,
+                    on_star_collide_play_star_despawn_sound,
+                    on_star_collide_event_add_score,
+                )
+                    .run_if(in_state(ApplicationState::InGame))
+                    .run_if(in_state(SimulationState::Running)),
+            );
+    }
+}
+
+pub const PLAYER_SPEED: f32 = 500.0;
+pub const PLAYER_SIZE: f32 = 64.0;
+
+#[derive(Component)]
+pub struct Player {}
+
+impl Player {
+    pub fn at_center_of_the_screen(
+        window: &Window,
+        asset_server: &Res<AssetServer>,
+    ) -> (Self, SpriteBundle) {
+        (
+            Player {},
+            SpriteBundle {
+                transform: WindowHelper::center(window),
+                texture: asset_server.load(SpriteHelper::player_sprite()),
+                ..default()
+            },
+        )
+    }
+}
 
 pub fn spawn_player(
     mut commands: Commands,
