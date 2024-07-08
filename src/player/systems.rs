@@ -103,7 +103,7 @@ pub fn on_star_collide_despawn_star(
     for event in event_reader.read() {
         let star_entity = event.star_entity;
         if let Some(mut entity_commands) = commands.get_entity(star_entity) {
-            entity_commands.despawn();
+            entity_commands.insert(Despawn {});
         }
     }
 }

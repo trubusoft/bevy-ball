@@ -8,10 +8,11 @@ use bevy_ball::star::StarPlugin;
 use bevy_ball::system::SystemPlugin;
 
 fn main() {
-    // Debug::main();
+    Debug::main();
     // Debug::debug_system_plugin();
     // Debug::debug_player();
-    Debug::debug_player_and_star();
+    // Debug::debug_player_and_star();
+    // Debug::debug_player_star_score();
 }
 
 struct Debug;
@@ -50,6 +51,16 @@ impl Debug {
             .add_plugins(SystemPlugin)
             .add_plugins(PlayerPlugin)
             .add_plugins(StarPlugin)
+            .run();
+    }
+
+    fn debug_player_star_score() {
+        App::new()
+            .add_plugins(DefaultPlugins)
+            .add_plugins(SystemPlugin)
+            .add_plugins(PlayerPlugin)
+            .add_plugins(StarPlugin)
+            .add_plugins(ScorePlugin)
             .run();
     }
 }
