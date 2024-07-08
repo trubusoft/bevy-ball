@@ -8,11 +8,14 @@ use bevy_ball::star::StarPlugin;
 use bevy_ball::system::SystemPlugin;
 
 fn main() {
-    Debug::main();
+    // Debug::main();
+    // Debug::debug_system_plugin();
+    Debug::debug_player_plugin();
 }
 
 struct Debug;
 
+#[allow(dead_code)]
 impl Debug {
     fn main() {
         App::new()
@@ -25,11 +28,18 @@ impl Debug {
             .run();
     }
 
-    #[allow(dead_code)]
-    fn debug_x() {
+    fn debug_system_plugin() {
         App::new()
             .add_plugins(DefaultPlugins)
             .add_plugins(SystemPlugin)
+            .run();
+    }
+
+    fn debug_player_plugin() {
+        App::new()
+            .add_plugins(DefaultPlugins)
+            .add_plugins(SystemPlugin)
+            .add_plugins(PlayerPlugin)
             .run();
     }
 }
