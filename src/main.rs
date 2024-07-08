@@ -7,11 +7,12 @@ use bevy_ball::game::GamePlugin;
 use bevy_ball::game::player::PlayerPlugin;
 use bevy_ball::game::score::ScorePlugin;
 use bevy_ball::game::star::StarPlugin;
-use bevy_ball::ui::MainMenuPlugin;
+use bevy_ball::ui::UIPlugin;
 
 fn main() {
     Debug::main();
     // Debug::debug_application();
+    // Debug::debug_ui();
     // Debug::debug_player();
     // Debug::debug_player_and_star();
     // Debug::debug_player_star_score();
@@ -26,7 +27,7 @@ impl Debug {
         App::new()
             .add_plugins(DefaultPlugins)
             .add_plugins(ApplicationPlugin)
-            .add_plugins(MainMenuPlugin)
+            .add_plugins(UIPlugin)
             .add_plugins(GamePlugin)
             .run();
     }
@@ -35,6 +36,14 @@ impl Debug {
         App::new()
             .add_plugins(DefaultPlugins)
             .add_plugins(ApplicationPlugin)
+            .run();
+    }
+
+    fn debug_ui() {
+        App::new()
+            .add_plugins(DefaultPlugins)
+            .add_plugins(ApplicationPlugin)
+            .add_plugins(UIPlugin)
             .run();
     }
 
