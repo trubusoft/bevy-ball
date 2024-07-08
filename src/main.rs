@@ -24,7 +24,6 @@ struct Debug;
 impl Debug {
     fn main() {
         App::new()
-            .init_state::<ApplicationState>()
             .add_plugins(DefaultPlugins)
             .add_plugins(ApplicationPlugin)
             .add_plugins(MainMenuPlugin)
