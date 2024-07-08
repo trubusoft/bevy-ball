@@ -1,15 +1,13 @@
-use bevy::app::{App, Update};
-use bevy::asset::AssetServer;
 use bevy::math::Vec3;
 use bevy::prelude::{
-    Component, default, in_state, IntoSystemConfigs, OnEnter, OnExit, Plugin, Resource,
-    SpriteBundle, Timer, TimerMode,
+    App, AssetServer, Bundle, Commands, Component, default, Entity, in_state, IntoSystemConfigs,
+    Name, OnEnter, OnExit, Plugin, Query, Res, ResMut, Resource, SpriteBundle, Time, Timer,
+    TimerMode, Transform, Update, Window, With,
 };
-use bevy::prelude::{Commands, Entity, Query, Res, ResMut, Time, Transform, Window, With};
 use bevy::window::PrimaryWindow;
 
 use crate::{ApplicationState, ScheduleDespawn};
-use crate::game::GameState;
+use crate::game::{Confined, GameState, Size};
 use crate::helpers::{AudioHelper, MovementHelper};
 use crate::helpers::{RandomHelper, SpriteHelper};
 
@@ -45,7 +43,16 @@ pub struct Enemy {
     pub direction: Vec3,
 }
 
-impl Enemy {
+#[derive(Bundle)]
+pub struct EnemyBundle {
+    name: Name,
+    enemy: Enemy,
+    confined: Confined,
+    size: Size,
+    sprite_bundle: SpriteBundle,
+}
+
+impl EnemyBundle {
     pub fn randomize_direction() -> Vec3 {
         Vec3::new(RandomHelper::random_f32(), RandomHelper::random_f32(), 0.0).normalize()
     }
@@ -53,14 +60,17 @@ impl Enemy {
     pub fn at_randomized_location(
         window: &Window,
         asset_server: &Res<AssetServer>,
-    ) -> (Enemy, SpriteBundle) {
+    ) -> (Name, Enemy, Confined, Size, SpriteBundle) {
         let random_x = RandomHelper::random_f32() * window.width();
         let random_y = RandomHelper::random_f32() * window.height();
 
         (
+            Name::new("Enemy"),
             Enemy {
                 direction: Self::randomize_direction(),
             },
+            Confined {},
+            Size { value: ENEMY_SIZE },
             SpriteBundle {
                 transform: Transform::from_xyz(random_x, random_y, 0.0),
                 texture: asset_server.load(SpriteHelper::enemy_sprite()),
@@ -69,8 +79,6 @@ impl Enemy {
         )
     }
 }
-
-pub struct EnemyBundle {}
 
 #[derive(Resource)]
 pub struct EnemySpawnTimer {
@@ -92,7 +100,7 @@ pub fn spawn_initial_enemies(
 ) {
     if let Ok(window) = window_query.get_single() {
         for _ in 0..NUMBER_OF_ENEMIES {
-            commands.spawn(Enemy::at_randomized_location(window, &asset_server));
+            commands.spawn(EnemyBundle::at_randomized_location(window, &asset_server));
         }
     }
 }
@@ -160,7 +168,7 @@ pub fn spawn_enemy_overtime(
 ) {
     if enemy_spawn_timer.timer.just_finished() {
         if let Ok(window) = window_query.get_single() {
-            commands.spawn(Enemy::at_randomized_location(window, &asset_server));
+            commands.spawn(EnemyBundle::at_randomized_location(window, &asset_server));
         }
     }
 }
