@@ -130,3 +130,9 @@ pub fn on_star_collide_event_add_score(
         score.value += 1;
     }
 }
+
+pub fn despawn_player(mut commands: Commands, query: Query<Entity, With<Player>>) {
+    if let Ok(player_entity) = query.get_single() {
+        commands.entity(player_entity).insert(Despawn {});
+    }
+}
