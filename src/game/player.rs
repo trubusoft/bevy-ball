@@ -20,7 +20,9 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(ApplicationState::InGame), spawn_player)
+        app.add_event::<PlayerDead>()
+            .add_event::<CollidedWithStar>()
+            .add_systems(OnEnter(ApplicationState::InGame), spawn_player)
             .add_systems(OnExit(ApplicationState::InGame), despawn_player)
             .add_systems(
                 Update,

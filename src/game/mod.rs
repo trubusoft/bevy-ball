@@ -25,8 +25,6 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<SimulationState>()
-            .add_event::<CollidedWithStar>()
-            .add_event::<PlayerDead>()
             .add_plugins(PlayerPlugin)
             .add_plugins(EnemyPlugin)
             .add_plugins(StarPlugin)
