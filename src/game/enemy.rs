@@ -8,8 +8,7 @@ use bevy::window::PrimaryWindow;
 
 use crate::{ApplicationState, ScheduleDespawn};
 use crate::game::{Confined, GameState, Size};
-use crate::helpers::{AudioHelper, MovementHelper};
-use crate::helpers::{RandomHelper, SpriteHelper};
+use crate::helpers::{AudioHelper, RandomHelper, SpriteHelper};
 
 pub struct EnemyPlugin;
 
@@ -22,7 +21,6 @@ impl Plugin for EnemyPlugin {
                 Update,
                 (
                     enemy_movement,
-                    confine_enemy_movement,
                     update_enemy_direction_when_out_of_bound,
                     tick_spawn_enemy_overtime,
                     spawn_enemy_overtime,
@@ -141,18 +139,6 @@ pub fn update_enemy_direction_when_out_of_bound(
         if is_direction_changed {
             commands.spawn(AudioHelper::play_bounce_sound(&asset_server));
         }
-    }
-}
-
-pub fn confine_enemy_movement(
-    mut enemy_query: Query<&mut Transform, With<Enemy>>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-) {
-    if let Ok(mut enemy_transform) = enemy_query.get_single_mut() {
-        let window = window_query.get_single().unwrap();
-        let confined_translation =
-            MovementHelper::confine(window, enemy_transform.translation, ENEMY_SIZE);
-        enemy_transform.translation = confined_translation;
     }
 }
 
