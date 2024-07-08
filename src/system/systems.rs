@@ -1,11 +1,12 @@
 use bevy::app::AppExit;
 use bevy::input::ButtonInput;
 use bevy::prelude::{
-    Camera2dBundle, Commands, default, EventWriter, KeyCode, Query, Res, Window, With,
+    Camera2dBundle, Commands, default, Entity, EventWriter, KeyCode, Query, Res, Window, With,
 };
 use bevy::window::PrimaryWindow;
 
 use crate::helpers::WindowHelper;
+use crate::system::components::Despawn;
 
 pub fn on_escape_exit(
     keyboard_input: Res<ButtonInput<KeyCode>>,
@@ -22,4 +23,10 @@ pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<Pr
         transform: WindowHelper::center(window),
         ..default()
     });
+}
+
+pub fn despawn_entity(mut commands: Commands, query: Query<Entity, With<Despawn>>) {
+    for entity in query.iter() {
+        commands.entity(entity).despawn();
+    }
 }
