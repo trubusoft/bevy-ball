@@ -1,13 +1,12 @@
 use bevy::DefaultPlugins;
 use bevy::prelude::App;
 
-use bevy_ball::ApplicationState;
 use bevy_ball::game::enemy::EnemyPlugin;
 use bevy_ball::game::GamePlugin;
 use bevy_ball::game::player::PlayerPlugin;
 use bevy_ball::game::score::ScorePlugin;
 use bevy_ball::game::star::StarPlugin;
-use bevy_ball::system::SystemPlugin;
+use bevy_ball::systems::{ApplicationState, SystemPlugin};
 use bevy_ball::ui::MainMenuPlugin;
 
 fn main() {

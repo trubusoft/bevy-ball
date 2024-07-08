@@ -4,11 +4,11 @@ use bevy::prelude::{
     Commands, in_state, IntoSystemConfigs, KeyCode, NextState, Plugin, Res, State, States, Update,
 };
 
-use crate::ApplicationState;
 use crate::game::enemy::EnemyPlugin;
 use crate::game::player::PlayerPlugin;
 use crate::game::score::ScorePlugin;
 use crate::game::star::StarPlugin;
+use crate::systems::ApplicationState;
 
 pub mod enemy;
 pub mod player;

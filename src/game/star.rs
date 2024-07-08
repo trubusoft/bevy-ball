@@ -6,10 +6,9 @@ use bevy::prelude::{
 };
 use bevy::window::PrimaryWindow;
 
-use crate::ApplicationState;
 use crate::game::SimulationState;
 use crate::helpers::RandomHelper;
-use crate::system::components::Despawn;
+use crate::systems::{ApplicationState, Despawn};
 
 pub struct StarPlugin;
 
@@ -98,6 +97,6 @@ pub fn spawn_stars_overtime(
 
 pub fn despawn_all_stars(mut commands: Commands, query: Query<Entity, With<Star>>) {
     for enemy_entity in query.iter() {
-        commands.entity(enemy_entity).insert(Despawn {});
+        commands.entity(enemy_entity).insert(Despawn::default());
     }
 }

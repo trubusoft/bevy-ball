@@ -5,9 +5,9 @@ use bevy::prelude::{
 };
 use bevy::prelude::Resource;
 
-use crate::ApplicationState;
+use crate::events::PlayerDead;
 use crate::game::SimulationState;
-use crate::system::events::PlayerDead;
+use crate::systems::ApplicationState;
 
 pub struct ScorePlugin;
 

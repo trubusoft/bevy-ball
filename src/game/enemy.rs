@@ -8,11 +8,10 @@ use bevy::prelude::{
 use bevy::prelude::{Commands, Entity, Query, Res, ResMut, Time, Transform, Window, With};
 use bevy::window::PrimaryWindow;
 
-use crate::ApplicationState;
 use crate::game::SimulationState;
 use crate::helpers::{AudioHelper, MovementHelper};
 use crate::helpers::{RandomHelper, SpriteHelper};
-use crate::system::components::Despawn;
+use crate::systems::{ApplicationState, Despawn};
 
 pub struct EnemyPlugin;
 
