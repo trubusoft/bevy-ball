@@ -23,6 +23,7 @@ impl Plugin for StarPlugin {
                     systems::tick_spawn_stars_overtime,
                     systems::spawn_stars_overtime,
                 )
+                    .run_if(in_state(ApplicationState::InGame))
                     .run_if(in_state(SimulationState::Running)),
             );
     }
