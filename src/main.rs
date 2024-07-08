@@ -1,7 +1,7 @@
 use bevy::DefaultPlugins;
 use bevy::prelude::App;
 
-use bevy_ball::{ApplicationPlugin, ApplicationState};
+use bevy_ball::ApplicationPlugin;
 use bevy_ball::game::enemy::EnemyPlugin;
 use bevy_ball::game::GamePlugin;
 use bevy_ball::game::player::PlayerPlugin;
@@ -11,7 +11,7 @@ use bevy_ball::ui::MainMenuPlugin;
 
 fn main() {
     Debug::main();
-    // Debug::debug_system_plugin();
+    // Debug::debug_application();
     // Debug::debug_player();
     // Debug::debug_player_and_star();
     // Debug::debug_player_star_score();
@@ -31,7 +31,7 @@ impl Debug {
             .run();
     }
 
-    fn debug_system_plugin() {
+    fn debug_application() {
         App::new()
             .add_plugins(DefaultPlugins)
             .add_plugins(ApplicationPlugin)
