@@ -20,9 +20,9 @@ impl Plugin for ApplicationPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_camera)
             .add_systems(Update, exit_on_escape)
-            .add_systems(PostUpdate, cleanup_entity)
             .add_systems(Update, transition_in_game_state)
-            .add_systems(Update, transition_main_menu_state);
+            .add_systems(Update, transition_main_menu_state)
+            .add_systems(PostUpdate, cleanup_entity);
     }
 }
 
