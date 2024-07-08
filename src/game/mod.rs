@@ -6,7 +6,7 @@ use bevy::prelude::{
     ResMut, State, States, Update,
 };
 
-use crate::{ApplicationState, game};
+use crate::ApplicationState;
 use crate::game::enemy::EnemyPlugin;
 use crate::game::high_score::HighScorePlugin;
 use crate::game::player::{CollidedWithEnemy, PlayerPlugin};

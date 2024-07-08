@@ -1,6 +1,6 @@
 use bevy::prelude::{
-    App, Commands, DetectChanges, EventReader, in_state, info, IntoSystemConfigs, NextState,
-    OnEnter, OnExit, Plugin, Res, ResMut, Resource, Update,
+    App, Commands, DetectChanges, in_state, info, IntoSystemConfigs, OnEnter, OnExit, Plugin, Res,
+    Resource, Update,
 };
 
 use crate::ApplicationState;

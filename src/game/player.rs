@@ -1,11 +1,8 @@
-use bevy::app::{App, Update};
-use bevy::asset::AssetServer;
-use bevy::input::ButtonInput;
 use bevy::prelude::{
-    Commands, Component, default, Entity, Event, EventReader, EventWriter, KeyCode, Query, Res,
-    ResMut, SpriteBundle, Time, Transform, Window, With, Without,
+    App, AssetServer, ButtonInput, Commands, Component, default, Entity, Event, EventReader,
+    EventWriter, in_state, IntoSystemConfigs, KeyCode, OnEnter, OnExit, Plugin, Query, Res,
+    ResMut, SpriteBundle, Time, Transform, Update, Window, With, Without,
 };
-use bevy::prelude::{in_state, IntoSystemConfigs, OnEnter, OnExit, Plugin};
 use bevy::window::PrimaryWindow;
 
 use crate::{ApplicationState, ScheduleDespawn};
@@ -13,8 +10,7 @@ use crate::game::enemy::{Enemy, ENEMY_SIZE};
 use crate::game::GameState;
 use crate::game::score::Score;
 use crate::game::star::{Star, STAR_SIZE};
-use crate::helpers::{AudioHelper, MovementHelper};
-use crate::helpers::{SpriteHelper, WindowHelper};
+use crate::helpers::{AudioHelper, MovementHelper, SpriteHelper, WindowHelper};
 
 pub struct PlayerPlugin;
 
@@ -26,7 +22,7 @@ impl Plugin for PlayerPlugin {
             .add_systems(OnExit(ApplicationState::InGame), despawn_player)
             .add_systems(
                 Update,
-                (player_movement, confine_player_movement)
+                (movement, confine_movement)
                     .chain()
                     .run_if(in_state(ApplicationState::InGame))
                     .run_if(in_state(GameState::Running)),
@@ -41,7 +37,9 @@ impl Plugin for PlayerPlugin {
             .add_systems(
                 Update,
                 (
-                    on_player_hit_enemy,
+                    on_hit_enemy_emit_collide_event,
+                    on_enemy_collide_despawn_player,
+                    on_enemy_collide_play_game_over_sound,
                     on_star_collide_play_star_despawn_sound,
                     on_star_collide_event_add_score,
                 )
@@ -93,7 +91,7 @@ pub fn spawn_player(
     }
 }
 
-pub fn player_movement(
+pub fn movement(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut player_query: Query<&mut Transform, With<Player>>,
     time: Res<Time>,
@@ -104,7 +102,7 @@ pub fn player_movement(
     }
 }
 
-pub fn confine_player_movement(
+pub fn confine_movement(
     mut player_query: Query<&mut Transform, With<Player>>,
     window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
@@ -116,15 +114,13 @@ pub fn confine_player_movement(
     }
 }
 
-pub fn on_player_hit_enemy(
-    mut commands: Commands,
-    mut player_query: Query<(Entity, &Transform), With<Player>>,
+pub fn on_hit_enemy_emit_collide_event(
+    mut player_query: Query<&Transform, With<Player>>,
     enemy_query: Query<&Transform, With<Enemy>>,
-    asset_server: Res<AssetServer>,
     mut event_writer: EventWriter<CollidedWithEnemy>,
     mut score: Option<Res<Score>>,
 ) {
-    if let Ok((player_entity, player_transform)) = player_query.get_single_mut() {
+    if let Ok(player_transform) = player_query.get_single_mut() {
         for enemy_transform in enemy_query.iter() {
             let is_collided = MovementHelper::is_collided(
                 PLAYER_SIZE,
@@ -134,10 +130,10 @@ pub fn on_player_hit_enemy(
             );
 
             if is_collided {
-                commands.spawn(AudioHelper::play_game_over_sound(&asset_server));
-                commands.entity(player_entity).despawn();
                 if let Some(score) = &mut score {
                     event_writer.send(CollidedWithEnemy { score: score.value });
+                } else {
+                    event_writer.send(CollidedWithEnemy { score: 0 });
                 }
             }
         }
@@ -162,6 +158,30 @@ pub fn on_hit_star_emit_collide_event(
                 event_writer.send(CollidedWithStar { star_entity });
             }
         }
+    }
+}
+
+pub fn on_enemy_collide_despawn_player(
+    mut commands: Commands,
+    mut event_reader: EventReader<CollidedWithEnemy>,
+    query: Query<Entity, With<Player>>,
+) {
+    if let Ok(player_entity) = query.get_single() {
+        for _event in event_reader.read() {
+            commands
+                .entity(player_entity)
+                .insert(ScheduleDespawn::default());
+        }
+    }
+}
+
+pub fn on_enemy_collide_play_game_over_sound(
+    mut commands: Commands,
+    mut event_reader: EventReader<CollidedWithEnemy>,
+    asset_server: Res<AssetServer>,
+) {
+    for _event in event_reader.read() {
+        commands.spawn(AudioHelper::play_game_over_sound(&asset_server));
     }
 }
 
