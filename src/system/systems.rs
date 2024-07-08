@@ -1,8 +1,8 @@
 use bevy::app::AppExit;
 use bevy::input::ButtonInput;
 use bevy::prelude::{
-    Camera2dBundle, Commands, default, Entity, EventWriter, KeyCode, NextState, Query, Res, State,
-    Window, With,
+    Camera2dBundle, Commands, default, Entity, EventWriter, KeyCode, NextState, Query, Res, ResMut,
+    State, Window, With,
 };
 use bevy::window::PrimaryWindow;
 
@@ -34,38 +34,37 @@ pub fn despawn_entity(mut commands: Commands, query: Query<Entity, With<Despawn>
     }
 }
 
-pub fn transition_to_ingame_state(
-    mut commands: Commands,
+pub fn transition_to_in_game_state(
+    mut application_next_state: ResMut<NextState<ApplicationState>>,
+    mut simulation_next_state: ResMut<NextState<SimulationState>>,
     button_input: Res<ButtonInput<KeyCode>>,
-    state: Res<State<ApplicationState>>,
+    current_application_state: Res<State<ApplicationState>>,
 ) {
     if button_input.just_pressed(KeyCode::KeyG) {
-        println!("Entered ApplicationState::InGame state");
-        match state.get() {
-            ApplicationState::MainMenu => {
-                commands.insert_resource(NextState(Some(ApplicationState::InGame)));
+        match current_application_state.get() {
+            ApplicationState::MainMenu | ApplicationState::GameOver => {
+                application_next_state.set(ApplicationState::InGame);
+                simulation_next_state.set(SimulationState::Running);
             }
-            ApplicationState::InGame => {}
-            ApplicationState::GameOver => {
-                commands.insert_resource(NextState(Some(ApplicationState::InGame)));
-            }
+            _ => {}
         }
     }
 }
 
 pub fn transition_to_main_menu_state(
-    mut commands: Commands,
+    mut application_next_state: ResMut<NextState<ApplicationState>>,
+    mut simulation_next_state: ResMut<NextState<SimulationState>>,
     button_input: Res<ButtonInput<KeyCode>>,
-    state: Res<State<ApplicationState>>,
+    current_application_state: Res<State<ApplicationState>>,
 ) {
     if button_input.just_pressed(KeyCode::KeyM) {
-        println!("Entered ApplicationState::MainMenu state");
-        match state.get() {
-            ApplicationState::MainMenu => {}
-            _ => {
-                commands.insert_resource(NextState(Some(ApplicationState::MainMenu)));
-                commands.insert_resource(NextState(Some(SimulationState::Paused)));
+        match current_application_state.get() {
+            ApplicationState::InGame | ApplicationState::GameOver => {
+                println!("Entered ApplicationState::MainMenu state");
+                application_next_state.set(ApplicationState::MainMenu);
+                simulation_next_state.set(SimulationState::Paused);
             }
+            _ => {}
         }
     }
 }

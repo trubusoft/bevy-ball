@@ -31,7 +31,7 @@ impl Plugin for GamePlugin {
 
 #[derive(States, Clone, Eq, PartialEq, Hash, Debug, Default)]
 pub enum SimulationState {
-    Running,
     #[default]
+    Running,
     Paused,
 }
