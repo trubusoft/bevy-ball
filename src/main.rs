@@ -7,6 +7,7 @@ use bevy_ball::game::player::PlayerPlugin;
 use bevy_ball::game::score::ScorePlugin;
 use bevy_ball::game::star::StarPlugin;
 use bevy_ball::system::SystemPlugin;
+use bevy_ball::ui::MainMenuPlugin;
 
 fn main() {
     Debug::main();
@@ -25,6 +26,7 @@ impl Debug {
         App::new()
             .add_plugins(DefaultPlugins)
             .add_plugins(SystemPlugin)
+            .add_plugins(MainMenuPlugin)
             .add_plugins(GamePlugin)
             .run();
     }
