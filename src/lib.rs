@@ -99,3 +99,13 @@ pub fn transition_main_menu_state(
         }
     }
 }
+
+pub fn transition_game_over(
+    mut application_next_state: ResMut<NextState<ApplicationState>>,
+    mut event_reader: EventReader<CollidedWithEnemy>,
+) {
+    for _event in event_reader.read() {
+        application_next_state.set(ApplicationState::GameOver);
+        info!("{:?}", ApplicationState::GameOver);
+    }
+}

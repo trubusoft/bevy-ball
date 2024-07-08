@@ -22,9 +22,9 @@ impl Plugin for ScorePlugin {
                     .run_if(in_state(SimulationState::Running)),
             )
             .init_resource::<HighScore>()
-            .add_systems(Update, on_player_collided_with_enemy_transition_state)
-            .add_systems(Update, on_player_collided_with_enemy_update_high_score)
-            .add_systems(Update, on_high_score_change);
+            .add_systems(Update, on_collided_with_enemy_set_pause)
+            .add_systems(Update, on_collided_with_enemy_update_high_score)
+            .add_systems(Update, on_high_score_change_print);
     }
 }
 
@@ -64,28 +64,29 @@ pub fn on_score_change(score: Res<Score>) {
     }
 }
 
-pub fn on_player_collided_with_enemy_transition_state(
-    mut commands: Commands,
+pub fn on_collided_with_enemy_set_pause(
     mut event_reader: EventReader<CollidedWithEnemy>,
+    mut next_state: ResMut<NextState<SimulationState>>,
 ) {
-    for event in event_reader.read() {
-        println!("Your final score is: {}", event.score);
-        commands.insert_resource(NextState(Some(ApplicationState::GameOver)));
-        commands.insert_resource(NextState(Some(SimulationState::Paused)));
+    for _event in event_reader.read() {
+        next_state.set(SimulationState::Paused);
     }
 }
 
-pub fn on_player_collided_with_enemy_update_high_score(
+pub fn on_collided_with_enemy_update_high_score(
     mut event_reader: EventReader<CollidedWithEnemy>,
     mut high_score: ResMut<HighScore>,
 ) {
     for event in event_reader.read() {
-        let last_score = event.score;
-        high_score.scores.push(("Player".to_string(), last_score));
+        let current_final_score = event.score;
+        println!("Your final score is: {}", current_final_score);
+        high_score
+            .scores
+            .push(("Player".to_string(), current_final_score));
     }
 }
 
-pub fn on_high_score_change(high_score: Res<HighScore>) {
+pub fn on_high_score_change_print(high_score: Res<HighScore>) {
     if high_score.is_changed() {
         println!("High Score updated: {:?}", high_score);
     }
