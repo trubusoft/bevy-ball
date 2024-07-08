@@ -21,7 +21,7 @@ impl Plugin for ScorePlugin {
                     .run_if(in_state(SimulationState::Running)),
             )
             .init_resource::<HighScore>()
-            .add_systems(Update, systems::on_event_game_over)
+            .add_systems(Update, systems::on_player_dead)
             .add_systems(Update, systems::update_high_score)
             .add_systems(Update, systems::on_high_score_change);
     }

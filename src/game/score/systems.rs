@@ -1,7 +1,9 @@
-use bevy::prelude::{DetectChanges, EventReader, Res, ResMut};
+use bevy::prelude::{Commands, DetectChanges, EventReader, NextState, Res, ResMut};
 
+use crate::ApplicationState;
 use crate::game::score::components::{HighScore, Score};
-use crate::system::events::GameOver;
+use crate::game::SimulationState;
+use crate::system::events::PlayerDead;
 
 pub fn on_score_change(score: Res<Score>) {
     if score.is_changed() {
@@ -9,14 +11,16 @@ pub fn on_score_change(score: Res<Score>) {
     }
 }
 
-pub fn on_event_game_over(mut event_reader: EventReader<GameOver>) {
+pub fn on_player_dead(mut commands: Commands, mut event_reader: EventReader<PlayerDead>) {
     for event in event_reader.read() {
-        println!("Your final score is: {}", event.score)
+        println!("Your final score is: {}", event.score);
+        commands.insert_resource(NextState(Some(ApplicationState::GameOver)));
+        commands.insert_resource(NextState(Some(SimulationState::Paused)));
     }
 }
 
 pub fn update_high_score(
-    mut event_reader: EventReader<GameOver>,
+    mut event_reader: EventReader<PlayerDead>,
     mut high_score: ResMut<HighScore>,
 ) {
     for event in event_reader.read() {

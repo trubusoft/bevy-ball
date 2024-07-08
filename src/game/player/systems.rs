@@ -12,7 +12,7 @@ use crate::game::score::components::Score;
 use crate::game::star::components::{Star, STAR_SIZE};
 use crate::helpers::{AudioHelper, MovementHelper};
 use crate::system::components::Despawn;
-use crate::system::events::{CollidedWithStar, GameOver};
+use crate::system::events::{CollidedWithStar, PlayerDead};
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -52,7 +52,7 @@ pub fn on_player_hit_enemy(
     mut player_query: Query<(Entity, &Transform), With<Player>>,
     enemy_query: Query<&Transform, With<Enemy>>,
     asset_server: Res<AssetServer>,
-    mut game_over_event_writter: EventWriter<GameOver>,
+    mut event_writer: EventWriter<PlayerDead>,
     mut score: Option<Res<Score>>,
 ) {
     if let Ok((player_entity, player_transform)) = player_query.get_single_mut() {
@@ -68,7 +68,7 @@ pub fn on_player_hit_enemy(
                 commands.spawn(AudioHelper::play_game_over_sound(&asset_server));
                 commands.entity(player_entity).despawn();
                 if let Some(score) = &mut score {
-                    game_over_event_writter.send(GameOver { score: score.value });
+                    event_writer.send(PlayerDead { score: score.value });
                 }
             }
         }
