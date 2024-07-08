@@ -2,8 +2,8 @@ use bevy::app::App;
 use bevy::input::ButtonInput;
 use bevy::log::info;
 use bevy::prelude::{
-    EventReader, in_state, IntoSystemConfigs, KeyCode, NextState, OnEnter, OnExit, Plugin, Res,
-    ResMut, State, States, Update,
+    Component, EventReader, in_state, IntoSystemConfigs, KeyCode, NextState, OnEnter, OnExit,
+    Plugin, Res, ResMut, State, States, Update,
 };
 
 use crate::ApplicationState;
@@ -81,3 +81,11 @@ pub fn on_collided_with_enemy_set_pause(
         next_state.set(GameState::Paused);
     }
 }
+
+#[derive(Component)]
+pub struct Size {
+    value: f32,
+}
+
+#[derive(Component)]
+pub struct Confined;

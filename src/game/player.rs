@@ -1,13 +1,13 @@
 use bevy::prelude::{
-    App, AssetServer, ButtonInput, Commands, Component, default, Entity, Event, EventReader,
-    EventWriter, in_state, IntoSystemConfigs, KeyCode, OnEnter, OnExit, Plugin, Query, Res,
-    ResMut, SpriteBundle, Time, Transform, Update, Window, With, Without,
+    App, AssetServer, Bundle, ButtonInput, Commands, Component, default, Entity, Event, EventReader,
+    EventWriter, in_state, IntoSystemConfigs, KeyCode, Name, OnEnter, OnExit, Plugin, Query,
+    Res, ResMut, SpriteBundle, Time, Transform, Update, Window, With, Without,
 };
 use bevy::window::PrimaryWindow;
 
 use crate::{ApplicationState, ScheduleDespawn};
+use crate::game::{Confined, GameState, Size};
 use crate::game::enemy::{Enemy, ENEMY_SIZE};
-use crate::game::GameState;
 use crate::game::score::Score;
 use crate::game::star::{Star, STAR_SIZE};
 use crate::helpers::{AudioHelper, MovementHelper, SpriteHelper, WindowHelper};
@@ -65,13 +65,25 @@ pub const PLAYER_SIZE: f32 = 64.0;
 #[derive(Component)]
 pub struct Player {}
 
-impl Player {
+#[derive(Bundle)]
+pub struct PlayerBundle {
+    name: Name,
+    player: Player,
+    confined: Confined,
+    size: Size,
+    sprite_bundle: SpriteBundle,
+}
+
+impl PlayerBundle {
     pub fn at_center_of_the_screen(
         window: &Window,
         asset_server: &Res<AssetServer>,
-    ) -> (Self, SpriteBundle) {
+    ) -> (Name, Player, Confined, Size, SpriteBundle) {
         (
+            Name::new("Player"),
             Player {},
+            Confined {},
+            Size { value: PLAYER_SIZE },
             SpriteBundle {
                 transform: WindowHelper::center(window),
                 texture: asset_server.load(SpriteHelper::player_sprite()),
@@ -87,7 +99,7 @@ pub fn spawn_player(
     asset_server: Res<AssetServer>,
 ) {
     if let Ok(window) = window_query.get_single() {
-        commands.spawn(Player::at_center_of_the_screen(window, &asset_server));
+        commands.spawn(PlayerBundle::at_center_of_the_screen(window, &asset_server));
     }
 }
 

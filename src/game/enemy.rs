@@ -70,6 +70,8 @@ impl Enemy {
     }
 }
 
+pub struct EnemyBundle {}
+
 #[derive(Resource)]
 pub struct EnemySpawnTimer {
     pub timer: Timer,
