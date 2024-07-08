@@ -1,6 +1,7 @@
 use bevy::DefaultPlugins;
 use bevy::prelude::App;
 
+use bevy_ball::ApplicationState;
 use bevy_ball::game::enemy::EnemyPlugin;
 use bevy_ball::game::GamePlugin;
 use bevy_ball::game::player::PlayerPlugin;
@@ -24,6 +25,7 @@ struct Debug;
 impl Debug {
     fn main() {
         App::new()
+            .init_state::<ApplicationState>()
             .add_plugins(DefaultPlugins)
             .add_plugins(SystemPlugin)
             .add_plugins(MainMenuPlugin)
