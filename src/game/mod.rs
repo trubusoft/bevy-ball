@@ -28,6 +28,7 @@ impl Plugin for GamePlugin {
             .add_plugins(EnemyPlugin)
             .add_plugins(StarPlugin)
             .add_plugins(ScorePlugin)
+            .add_plugins(HighScorePlugin)
             .add_systems(OnEnter(ApplicationState::InGame), resume_game)
             .add_systems(OnExit(ApplicationState::InGame), pause_game)
             .add_systems(
