@@ -86,14 +86,14 @@ pub fn transition_in_game_state(
 }
 
 pub fn transition_main_menu_state(
-    mut application_next_state: ResMut<NextState<ApplicationState>>,
+    mut next_state: ResMut<NextState<ApplicationState>>,
     button_input: Res<ButtonInput<KeyCode>>,
-    current_application_state: Res<State<ApplicationState>>,
+    current_state: Res<State<ApplicationState>>,
 ) {
     if button_input.just_pressed(KeyCode::KeyM) {
-        match current_application_state.get() {
+        match current_state.get() {
             ApplicationState::InGame | ApplicationState::GameOver => {
-                application_next_state.set(ApplicationState::MainMenu);
+                next_state.set(ApplicationState::MainMenu);
                 info!("{:?}", ApplicationState::MainMenu);
             }
             _ => {}
@@ -102,11 +102,11 @@ pub fn transition_main_menu_state(
 }
 
 pub fn transition_game_over(
-    mut application_next_state: ResMut<NextState<ApplicationState>>,
+    mut next_state: ResMut<NextState<ApplicationState>>,
     mut event_reader: EventReader<CollidedWithEnemy>,
 ) {
     for _event in event_reader.read() {
-        application_next_state.set(ApplicationState::GameOver);
+        next_state.set(ApplicationState::GameOver);
         info!("{:?}", ApplicationState::GameOver);
     }
 }

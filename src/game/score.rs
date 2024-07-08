@@ -1,7 +1,7 @@
 use bevy::app::{App, Update};
 use bevy::prelude::{
-    Commands, DetectChanges, EventReader, in_state, IntoSystemConfigs, NextState, OnEnter, OnExit,
-    Plugin, Res, ResMut,
+    Commands, DetectChanges, EventReader, in_state, info, IntoSystemConfigs, NextState, OnEnter,
+    OnExit, Plugin, Res, ResMut,
 };
 use bevy::prelude::Resource;
 
@@ -60,7 +60,7 @@ impl Default for HighScore {
 
 pub fn on_score_change(score: Res<Score>) {
     if score.is_changed() {
-        println!("Score updated: {}", score.value);
+        info!("Score updated: {}", score.value);
     }
 }
 
@@ -79,7 +79,7 @@ pub fn on_collided_with_enemy_update_high_score(
 ) {
     for event in event_reader.read() {
         let current_final_score = event.score;
-        println!("Your final score is: {}", current_final_score);
+        info!("Your final score is: {}", current_final_score);
         high_score
             .scores
             .push(("Player".to_string(), current_final_score));
@@ -88,6 +88,6 @@ pub fn on_collided_with_enemy_update_high_score(
 
 pub fn on_high_score_change_print(high_score: Res<HighScore>) {
     if high_score.is_changed() {
-        println!("High Score updated: {:?}", high_score);
+        info!("High Score updated: {:?}", high_score);
     }
 }
