@@ -13,6 +13,7 @@ fn main() {
     // Debug::debug_player();
     // Debug::debug_player_and_star();
     // Debug::debug_player_star_score();
+    // Debug::debug_enemy();
 }
 
 struct Debug;
@@ -61,6 +62,14 @@ impl Debug {
             .add_plugins(PlayerPlugin)
             .add_plugins(StarPlugin)
             .add_plugins(ScorePlugin)
+            .run();
+    }
+
+    fn debug_enemy() {
+        App::new()
+            .add_plugins(DefaultPlugins)
+            .add_plugins(SystemPlugin)
+            .add_plugins(EnemyPlugin)
             .run();
     }
 }
