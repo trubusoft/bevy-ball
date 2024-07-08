@@ -36,7 +36,6 @@ pub fn despawn_entity(mut commands: Commands, query: Query<Entity, With<Despawn>
 
 pub fn transition_to_in_game_state(
     mut application_next_state: ResMut<NextState<ApplicationState>>,
-    mut simulation_next_state: ResMut<NextState<SimulationState>>,
     button_input: Res<ButtonInput<KeyCode>>,
     current_application_state: Res<State<ApplicationState>>,
 ) {
@@ -44,7 +43,6 @@ pub fn transition_to_in_game_state(
         match current_application_state.get() {
             ApplicationState::MainMenu | ApplicationState::GameOver => {
                 application_next_state.set(ApplicationState::InGame);
-                simulation_next_state.set(SimulationState::Running);
             }
             _ => {}
         }
@@ -53,7 +51,6 @@ pub fn transition_to_in_game_state(
 
 pub fn transition_to_main_menu_state(
     mut application_next_state: ResMut<NextState<ApplicationState>>,
-    mut simulation_next_state: ResMut<NextState<SimulationState>>,
     button_input: Res<ButtonInput<KeyCode>>,
     current_application_state: Res<State<ApplicationState>>,
 ) {
@@ -62,9 +59,16 @@ pub fn transition_to_main_menu_state(
             ApplicationState::InGame | ApplicationState::GameOver => {
                 println!("Entered ApplicationState::MainMenu state");
                 application_next_state.set(ApplicationState::MainMenu);
-                simulation_next_state.set(SimulationState::Paused);
             }
             _ => {}
         }
     }
+}
+
+pub fn pause_simulation(mut next_state: ResMut<NextState<SimulationState>>) {
+    next_state.set(SimulationState::Paused);
+}
+
+pub fn resume_simulation(mut next_state: ResMut<NextState<SimulationState>>) {
+    next_state.set(SimulationState::Running);
 }
