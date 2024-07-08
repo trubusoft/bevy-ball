@@ -23,6 +23,7 @@ impl Plugin for ApplicationPlugin {
             .add_systems(Update, exit_on_escape)
             .add_systems(Update, transition_in_game_state)
             .add_systems(Update, transition_main_menu_state)
+            .add_systems(Update, transition_game_over)
             .add_systems(PostUpdate, cleanup_entity);
     }
 }
