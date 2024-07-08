@@ -2,8 +2,8 @@ use bevy::app::App;
 use bevy::input::ButtonInput;
 use bevy::log::info;
 use bevy::prelude::{
-    Commands, in_state, IntoSystemConfigs, KeyCode, NextState, OnEnter, OnExit, Plugin, Res,
-    ResMut, State, States, Update,
+    in_state, IntoSystemConfigs, KeyCode, NextState, OnEnter, OnExit, Plugin, Res, ResMut, State,
+    States, Update,
 };
 
 use crate::ApplicationState;
@@ -43,19 +43,17 @@ pub enum GameState {
 }
 
 pub fn toggle_pause(
-    mut commands: Commands,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     state: Res<State<GameState>>,
+    next_state: ResMut<NextState<GameState>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Space) {
         match state.get() {
             GameState::Running => {
-                commands.insert_resource(NextState(Some(GameState::Paused)));
-                info!("{:?}", GameState::Paused);
+                pause_game(next_state);
             }
             GameState::Paused => {
-                commands.insert_resource(NextState(Some(GameState::Running)));
-                info!("{:?}", GameState::Running);
+                resume_game(next_state);
             }
         }
     }
@@ -63,8 +61,10 @@ pub fn toggle_pause(
 
 pub fn pause_game(mut next_state: ResMut<NextState<GameState>>) {
     next_state.set(GameState::Paused);
+    info!("{:?}", GameState::Paused);
 }
 
 pub fn resume_game(mut next_state: ResMut<NextState<GameState>>) {
     next_state.set(GameState::Running);
+    info!("{:?}", GameState::Running);
 }
