@@ -9,8 +9,10 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, systems::spawn_player)
-            .add_systems(Update, systems::player_movement)
-            .add_systems(Update, systems::confine_player_movement)
+            .add_systems(
+                Update,
+                (systems::player_movement, systems::confine_player_movement).chain(),
+            )
             .add_systems(Update, systems::on_player_hit_enemy)
             .add_systems(
                 Update,
