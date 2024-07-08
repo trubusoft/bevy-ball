@@ -9,12 +9,14 @@ use bevy::prelude::{
 use crate::ApplicationState;
 use crate::game::enemy::EnemyPlugin;
 use crate::game::high_score::HighScorePlugin;
+use crate::game::movement::MovementPlugin;
 use crate::game::player::{CollidedWithEnemy, PlayerPlugin};
 use crate::game::score::ScorePlugin;
 use crate::game::star::StarPlugin;
 
 pub mod enemy;
 pub mod high_score;
+mod movement;
 pub mod player;
 pub mod score;
 pub mod star;
@@ -24,6 +26,7 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>()
+            .add_plugins(MovementPlugin)
             .add_plugins(PlayerPlugin)
             .add_plugins(EnemyPlugin)
             .add_plugins(StarPlugin)

@@ -22,7 +22,7 @@ impl Plugin for PlayerPlugin {
             .add_systems(OnExit(ApplicationState::InGame), despawn_player)
             .add_systems(
                 Update,
-                (movement, confine_movement)
+                movement
                     .chain()
                     .run_if(in_state(ApplicationState::InGame))
                     .run_if(in_state(GameState::Running)),
@@ -111,18 +111,6 @@ pub fn movement(
     if let Ok(mut transform) = player_query.get_single_mut() {
         let movement_direction = MovementHelper::handle_input(keyboard_input);
         transform.translation += movement_direction * PLAYER_SPEED * time.delta_seconds();
-    }
-}
-
-pub fn confine_movement(
-    mut player_query: Query<&mut Transform, With<Player>>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-) {
-    if let Ok(mut player_transform) = player_query.get_single_mut() {
-        let window = window_query.get_single().unwrap();
-        let confined_translation =
-            MovementHelper::confine(window, player_transform.translation, PLAYER_SIZE);
-        player_transform.translation = confined_translation;
     }
 }
 
