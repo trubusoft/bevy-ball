@@ -1,9 +1,13 @@
+use std::convert::Into;
+
 use bevy::app::App;
 use bevy::prelude::{
     AlignItems, BuildChildren, Bundle, ButtonBundle, Color, Commands, Component,
-    DespawnRecursiveExt, Entity, FlexDirection, JustifyContent, JustifyText, NodeBundle, OnEnter,
-    OnExit, Plugin, Query, Res, Style, Text, TextBundle, TextSection, TextStyle, Val, With,
+    DespawnRecursiveExt, Entity, FlexDirection, ImageBundle, JustifyContent, JustifyText,
+    NodeBundle, OnEnter, OnExit, Plugin, Query, Res, Style, Text, TextBundle, TextSection,
+    TextStyle, UiImage, UiRect, Val, With,
 };
+use bevy::text::BreakLineOn;
 use bevy::utils::default;
 
 use crate::ApplicationState;
@@ -18,6 +22,8 @@ const BUTTON_STYLE: Style = {
     style
 };
 
+const BUTTON_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
+
 pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
@@ -31,7 +37,7 @@ impl Plugin for UIPlugin {
 pub struct MainMenu;
 
 #[derive(Component)]
-pub struct Title;
+pub struct TitleSection;
 
 #[derive(Component)]
 pub struct PlayButton;
@@ -50,7 +56,7 @@ impl Default for MainMenuBundle {
         Self {
             main_menu: MainMenu {},
             node_bundle: NodeBundle {
-                background_color: Color::SEA_GREEN.into(),
+                background_color: Color::DARK_GRAY.into(),
                 style: Style {
                     width: Val::Percent(100.0),
                     height: Val::Percent(100.0),
@@ -67,16 +73,27 @@ impl Default for MainMenuBundle {
 }
 
 #[derive(Bundle)]
-pub struct TitleBundle {
-    title: Title,
-    text_bundle: TextBundle,
+pub struct TitleSectionBundle {
+    title_section: TitleSection,
+    node_bundle: NodeBundle,
 }
 
-impl Default for TitleBundle {
+impl Default for TitleSectionBundle {
     fn default() -> Self {
         Self {
-            title: Title {},
-            text_bundle: TextBundle::default(),
+            title_section: TitleSection {},
+            node_bundle: NodeBundle {
+                style: Style {
+                    width: Val::Px(300.0),
+                    height: Val::Px(120.0),
+                    flex_direction: FlexDirection::Row,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    column_gap: Val::Px(20.0),
+                    ..default()
+                },
+                ..default()
+            },
         }
     }
 }
@@ -92,7 +109,7 @@ impl Default for PlayButtonBundle {
         Self {
             play_button: PlayButton {},
             button_bundle: ButtonBundle {
-                background_color: Color::YELLOW_GREEN.into(),
+                background_color: BUTTON_COLOR.into(),
                 style: BUTTON_STYLE,
                 ..default()
             },
@@ -111,7 +128,7 @@ impl Default for QuitButtonBundle {
         Self {
             quit_button: QuitButton {},
             button_bundle: ButtonBundle {
-                background_color: Color::ORANGE_RED.into(),
+                background_color: BUTTON_COLOR.into(),
                 style: BUTTON_STYLE,
                 ..default()
             },
@@ -134,7 +151,64 @@ pub fn build_main_menu(commands: &mut Commands, asset_handler: &Res<AssetHandler
         .spawn(MainMenuBundle::default())
         .with_children(|parent| {
             // title
-            parent.spawn(TitleBundle::default());
+            parent
+                .spawn(TitleSectionBundle::default())
+                .with_children(|parent| {
+                    // image 1
+                    parent.spawn(ImageBundle {
+                        style: Style {
+                            width: Val::Px(64.0),
+                            height: Val::Px(64.0),
+                            margin: UiRect::new(
+                                Val::Px(8.0),
+                                Val::Px(8.0),
+                                Val::Px(8.0),
+                                Val::Px(8.0),
+                            ),
+                            ..default()
+                        },
+                        image: UiImage {
+                            texture: asset_handler.player_texture.clone(),
+                            ..default()
+                        },
+                        ..default()
+                    });
+                    // text
+                    parent.spawn(TextBundle {
+                        text: Text {
+                            sections: vec![TextSection::new(
+                                "Bevy Ball Game",
+                                TextStyle {
+                                    font_size: 35.0,
+                                    ..default()
+                                },
+                            )],
+                            justify: JustifyText::Center,
+                            linebreak_behavior: BreakLineOn::NoWrap,
+                            ..default()
+                        },
+                        ..default()
+                    });
+                    // image 2
+                    parent.spawn(ImageBundle {
+                        style: Style {
+                            width: Val::Px(64.0),
+                            height: Val::Px(64.0),
+                            margin: UiRect::new(
+                                Val::Px(8.0),
+                                Val::Px(8.0),
+                                Val::Px(8.0),
+                                Val::Px(8.0),
+                            ),
+                            ..default()
+                        },
+                        image: UiImage {
+                            texture: asset_handler.enemy_texture.clone(),
+                            ..default()
+                        },
+                        ..default()
+                    });
+                });
             // play button
             parent
                 .spawn(PlayButtonBundle::default())
