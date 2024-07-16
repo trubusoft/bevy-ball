@@ -129,15 +129,3 @@ impl AudioHelper {
         "audio/explosionCrunch_000.ogg".to_string()
     }
 }
-
-pub struct SpriteHelper {}
-
-impl SpriteHelper {
-    pub fn enemy_sprite() -> String {
-        "sprites/ball_red_large.png".to_string()
-    }
-
-    pub fn player_sprite() -> String {
-        "sprites/ball_blue_large.png".to_string()
-    }
-}
