@@ -1,12 +1,22 @@
 use bevy::app::App;
 use bevy::prelude::{
-    BuildChildren, Bundle, ButtonBundle, Color, Commands, Component, DespawnRecursiveExt, Entity,
-    NodeBundle, OnEnter, OnExit, Plugin, Query, Res, Style, TextBundle, Val, With,
+    AlignItems, BuildChildren, Bundle, ButtonBundle, Color, Commands, Component,
+    DespawnRecursiveExt, Entity, FlexDirection, JustifyContent, JustifyText, NodeBundle, OnEnter,
+    OnExit, Plugin, Query, Res, Style, Text, TextBundle, TextSection, TextStyle, Val, With,
 };
 use bevy::utils::default;
 
 use crate::ApplicationState;
 use crate::asset_handler::AssetHandler;
+
+const BUTTON_STYLE: Style = {
+    let mut style = Style::DEFAULT;
+    style.width = Val::Px(200.0);
+    style.height = Val::Px(80.0);
+    style.justify_content = JustifyContent::Center;
+    style.align_items = AlignItems::Center;
+    style
+};
 
 pub struct UIPlugin;
 
@@ -44,6 +54,10 @@ impl Default for MainMenuBundle {
                 style: Style {
                     width: Val::Percent(100.0),
                     height: Val::Percent(100.0),
+                    flex_direction: FlexDirection::Column,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    row_gap: Val::Px(8.0),
                     ..default()
                 },
                 ..default()
@@ -78,12 +92,8 @@ impl Default for PlayButtonBundle {
         Self {
             play_button: PlayButton {},
             button_bundle: ButtonBundle {
-                background_color: Color::ORANGE_RED.into(),
-                style: Style {
-                    width: Val::Px(200.0),
-                    height: Val::Px(80.0),
-                    ..default()
-                },
+                background_color: Color::YELLOW_GREEN.into(),
+                style: BUTTON_STYLE,
                 ..default()
             },
         }
@@ -101,12 +111,8 @@ impl Default for QuitButtonBundle {
         Self {
             quit_button: QuitButton {},
             button_bundle: ButtonBundle {
-                background_color: Color::YELLOW_GREEN.into(),
-                style: Style {
-                    width: Val::Px(200.0),
-                    height: Val::Px(80.0),
-                    ..default()
-                },
+                background_color: Color::ORANGE_RED.into(),
+                style: BUTTON_STYLE,
                 ..default()
             },
         }
@@ -130,9 +136,43 @@ pub fn build_main_menu(commands: &mut Commands, asset_handler: &Res<AssetHandler
             // title
             parent.spawn(TitleBundle::default());
             // play button
-            parent.spawn(PlayButtonBundle::default());
+            parent
+                .spawn(PlayButtonBundle::default())
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text {
+                            sections: vec![TextSection::new(
+                                "Play",
+                                TextStyle {
+                                    font_size: 35.0,
+                                    ..default()
+                                },
+                            )],
+                            justify: JustifyText::Center,
+                            ..default()
+                        },
+                        ..default()
+                    });
+                });
             // quit button
-            parent.spawn(QuitButtonBundle::default());
+            parent
+                .spawn(QuitButtonBundle::default())
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text {
+                            sections: vec![TextSection::new(
+                                "Quit",
+                                TextStyle {
+                                    font_size: 35.0,
+                                    ..default()
+                                },
+                            )],
+                            justify: JustifyText::Center,
+                            ..default()
+                        },
+                        ..default()
+                    });
+                });
         })
         .id()
 }
