@@ -38,7 +38,7 @@ impl Plugin for GamePlugin {
                 Update,
                 toggle_pause.run_if(in_state(ApplicationState::InGame)),
             )
-            .add_systems(Update, on_collided_with_enemy_set_pause);
+            .add_systems(Update, on_collided_with_enemy_set_game_over);
     }
 }
 
@@ -47,6 +47,7 @@ pub enum GameState {
     #[default]
     Running,
     Paused,
+    Stop,
 }
 
 pub fn toggle_pause(
@@ -62,6 +63,7 @@ pub fn toggle_pause(
             GameState::Paused => {
                 resume_game(next_state);
             }
+            _ => {}
         }
     }
 }
@@ -76,12 +78,12 @@ pub fn resume_game(mut next_state: ResMut<NextState<GameState>>) {
     info!("{:?}", GameState::Running);
 }
 
-pub fn on_collided_with_enemy_set_pause(
+pub fn on_collided_with_enemy_set_game_over(
     mut event_reader: EventReader<CollidedWithEnemy>,
-    mut next_state: ResMut<NextState<GameState>>,
+    mut game_state: ResMut<NextState<GameState>>,
 ) {
     for _event in event_reader.read() {
-        next_state.set(GameState::Paused);
+        game_state.set(GameState::Stop);
     }
 }
 
