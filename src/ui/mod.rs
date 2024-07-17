@@ -2,8 +2,8 @@ use std::convert::Into;
 
 use bevy::app::App;
 use bevy::prelude::{
-    AlignItems, BackgroundColor, Changed, Color, Component, in_state, Interaction,
-    IntoSystemConfigs, JustifyContent, Plugin, Query, Style, Update, Val, With,
+    AlignItems, BackgroundColor, Changed, Color, Component, Interaction, IntoSystemConfigs,
+    JustifyContent, Plugin, Query, Style, Update, Val, With,
 };
 
 use crate::ApplicationState;
@@ -28,18 +28,17 @@ pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(MainMenuPlugin).add_systems(
-            Update,
-            button_color_change.run_if(in_state(ApplicationState::MainMenu)),
-        );
+        app.add_plugins(MainMenuPlugin)
+            .add_plugins(PauseMenuPlugin)
+            .add_systems(Update, button_color_change.run_if(ui_button_present));
     }
 }
 
 #[derive(Component)]
-pub struct UiButton;
+pub struct UIButton;
 
 pub fn button_color_change(
-    mut query: Query<(&Interaction, &mut BackgroundColor), (Changed<Interaction>, With<UiButton>)>,
+    mut query: Query<(&Interaction, &mut BackgroundColor), (Changed<Interaction>, With<UIButton>)>,
 ) {
     for (interaction, mut background_color) in query.iter_mut() {
         match *interaction {
@@ -48,4 +47,8 @@ pub fn button_color_change(
             Interaction::None => *background_color = BUTTON_COLOR_NORMAL.into(),
         }
     }
+}
+
+pub fn ui_button_present(query: Query<(), (Changed<Interaction>, With<UIButton>)>) -> bool {
+    !query.is_empty()
 }

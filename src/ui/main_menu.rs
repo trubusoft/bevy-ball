@@ -10,7 +10,7 @@ use bevy::text::BreakLineOn;
 
 use crate::ApplicationState;
 use crate::asset_handler::AssetHandler;
-use crate::ui::{BUTTON_COLOR_NORMAL, BUTTON_STYLE, UiButton};
+use crate::ui::{BUTTON_COLOR_NORMAL, BUTTON_STYLE, UIButton};
 
 pub struct MainMenuPlugin;
 
@@ -115,7 +115,7 @@ impl Default for TitleSectionBundle {
 
 #[derive(Bundle)]
 pub struct PlayButtonBundle {
-    ui_button: UiButton,
+    ui_button: UIButton,
     play_button: PlayButton,
     button_bundle: ButtonBundle,
 }
@@ -124,7 +124,7 @@ impl Default for PlayButtonBundle {
     fn default() -> Self {
         Self {
             play_button: PlayButton {},
-            ui_button: UiButton {},
+            ui_button: UIButton {},
             button_bundle: ButtonBundle {
                 background_color: BUTTON_COLOR_NORMAL.into(),
                 style: BUTTON_STYLE,
@@ -136,7 +136,7 @@ impl Default for PlayButtonBundle {
 
 #[derive(Bundle)]
 pub struct QuitButtonBundle {
-    ui_button: UiButton,
+    ui_button: UIButton,
     quit_button: QuitButton,
     button_bundle: ButtonBundle,
 }
@@ -144,7 +144,7 @@ pub struct QuitButtonBundle {
 impl Default for QuitButtonBundle {
     fn default() -> Self {
         Self {
-            ui_button: UiButton {},
+            ui_button: UIButton {},
             quit_button: QuitButton {},
             button_bundle: ButtonBundle {
                 background_color: BUTTON_COLOR_NORMAL.into(),
