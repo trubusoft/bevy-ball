@@ -2,10 +2,10 @@ use std::convert::Into;
 
 use bevy::app::App;
 use bevy::prelude::{
-    AlignItems, BuildChildren, Bundle, ButtonBundle, Color, Commands, Component,
-    DespawnRecursiveExt, Entity, FlexDirection, ImageBundle, JustifyContent, JustifyText,
-    NodeBundle, OnEnter, OnExit, Plugin, Query, Res, Style, Text, TextBundle, TextSection,
-    TextStyle, UiImage, UiRect, Val, With,
+    AlignItems, BackgroundColor, BuildChildren, Bundle, ButtonBundle, Changed, Color, Commands,
+    Component, DespawnRecursiveExt, Entity, FlexDirection, ImageBundle, in_state, Interaction,
+    IntoSystemConfigs, JustifyContent, JustifyText, NodeBundle, OnEnter, OnExit, Or, Plugin, Query,
+    Res, Style, Text, TextBundle, TextSection, TextStyle, UiImage, UiRect, Update, Val, With,
 };
 use bevy::text::BreakLineOn;
 use bevy::utils::default;
@@ -22,14 +22,20 @@ const BUTTON_STYLE: Style = {
     style
 };
 
-const BUTTON_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
+const BUTTON_COLOR_NORMAL: Color = Color::rgb(0.15, 0.15, 0.15);
+const BUTTON_COLOR_HOVERED: Color = Color::rgb(0.25, 0.25, 0.25);
+const BUTTON_COLOR_PRESSED: Color = Color::rgb(0.35, 0.75, 0.35);
 
 pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(ApplicationState::MainMenu), spawn_main_menu)
-            .add_systems(OnExit(ApplicationState::MainMenu), despawn_main_menu);
+            .add_systems(OnExit(ApplicationState::MainMenu), despawn_main_menu)
+            .add_systems(
+                Update,
+                button_color_change.run_if(in_state(ApplicationState::MainMenu)),
+            );
     }
 }
 
@@ -109,7 +115,7 @@ impl Default for PlayButtonBundle {
         Self {
             play_button: PlayButton {},
             button_bundle: ButtonBundle {
-                background_color: BUTTON_COLOR.into(),
+                background_color: BUTTON_COLOR_NORMAL.into(),
                 style: BUTTON_STYLE,
                 ..default()
             },
@@ -128,7 +134,7 @@ impl Default for QuitButtonBundle {
         Self {
             quit_button: QuitButton {},
             button_bundle: ButtonBundle {
-                background_color: BUTTON_COLOR.into(),
+                background_color: BUTTON_COLOR_NORMAL.into(),
                 style: BUTTON_STYLE,
                 ..default()
             },
@@ -249,4 +255,22 @@ pub fn build_main_menu(commands: &mut Commands, asset_handler: &Res<AssetHandler
                 });
         })
         .id()
+}
+
+pub fn button_color_change(
+    mut query: Query<
+        (&Interaction, &mut BackgroundColor),
+        (
+            Changed<Interaction>,
+            Or<(With<PlayButton>, With<QuitButton>)>,
+        ),
+    >,
+) {
+    for (interaction, mut background_color) in query.iter_mut() {
+        match *interaction {
+            Interaction::Pressed => *background_color = BUTTON_COLOR_PRESSED.into(),
+            Interaction::Hovered => *background_color = BUTTON_COLOR_HOVERED.into(),
+            Interaction::None => *background_color = BUTTON_COLOR_NORMAL.into(),
+        }
+    }
 }
