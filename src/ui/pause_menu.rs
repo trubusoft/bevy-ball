@@ -1,12 +1,11 @@
 use bevy::app::{App, AppExit};
 use bevy::prelude::{
-    AlignItems, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, DespawnRecursiveExt, Display,
-    Entity, EventWriter, FlexDirection, in_state, info, Interaction,
-    IntoSystemConfigs, JustifyContent, JustifyText, NextState, NodeBundle, OnEnter, OnExit, Plugin,
-    PositionType, Query, ResMut, Style, Text, TextBundle, TextSection, TextStyle, Update, Val,
-    With, ZIndex,
+    AlignItems, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, default, DespawnRecursiveExt,
+    Display, Entity, EventWriter, FlexDirection, in_state, info, Interaction,
+    IntoSystemConfigs, JustifyContent, JustifyText, Name, NextState, NodeBundle, OnEnter, OnExit,
+    Plugin, PositionType, Query, ResMut, Style, Text, TextBundle, TextSection, TextStyle, Update,
+    Val, With, ZIndex,
 };
-use bevy::utils::default;
 
 use crate::ApplicationState;
 use crate::game::GameState;
@@ -69,6 +68,21 @@ pub fn on_quit_button_pressed(
     }
 }
 
+pub fn spawn_pause_menu(mut commands: Commands) {
+    info!("Spawning Pause Menu");
+    build_pause_menu(&mut commands);
+}
+
+pub fn despawn_pause_menu(
+    mut commands: Commands,
+    pause_menu_query: Query<Entity, With<PauseMenu>>,
+) {
+    if let Ok(pause_menu_entity) = pause_menu_query.get_single() {
+        info!("Despawning Pause Menu");
+        commands.entity(pause_menu_entity).despawn_recursive();
+    }
+}
+
 #[derive(Component)]
 pub struct PauseMenu {}
 
@@ -81,7 +95,7 @@ pub struct MainMenuButton {}
 #[derive(Component)]
 pub struct QuitButton {}
 
-pub const BACKGROUND_COLOR: Color = Color::rgba(0.25, 0.25, 0.25, 0.5);
+pub const PAUSE_MENU_BACKGROUND_COLOR: Color = Color::rgba(0.25, 0.25, 0.25, 0.5);
 
 pub const PAUSE_MENU_STYLE: Style = {
     let mut style = Style::DEFAULT;
@@ -123,37 +137,22 @@ pub fn get_button_text_style() -> TextStyle {
     }
 }
 
-pub fn spawn_pause_menu(mut commands: Commands) {
-    info!("Spawning Pause Menu");
-    build_pause_menu(&mut commands);
-}
-
-pub fn despawn_pause_menu(
-    mut commands: Commands,
-    pause_menu_query: Query<Entity, With<PauseMenu>>,
-) {
-    if let Ok(pause_menu_entity) = pause_menu_query.get_single() {
-        commands.entity(pause_menu_entity).despawn_recursive();
-    }
-}
-
-// System Piping Example
 pub fn build_pause_menu(commands: &mut Commands) -> Entity {
     let pause_menu_entity = commands
         .spawn((
+            Name::new("Pause Menu"),
+            PauseMenu {},
             NodeBundle {
                 style: PAUSE_MENU_STYLE,
                 z_index: ZIndex::Local(1), // UI Z-Index | https://github.com/bevyengine/bevy/blob/latest/examples/ui/z_index.rs
                 ..default()
             },
-            PauseMenu {},
-            UIButton {},
         ))
         .with_children(|parent| {
             parent
                 .spawn(NodeBundle {
                     style: PAUSE_MENU_CONTAINER_STYLE,
-                    background_color: BACKGROUND_COLOR.into(),
+                    background_color: PAUSE_MENU_BACKGROUND_COLOR.into(),
                     ..default()
                 })
                 .with_children(|parent| {
