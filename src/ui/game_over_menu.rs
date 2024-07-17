@@ -1,15 +1,15 @@
 use bevy::app::AppExit;
 use bevy::prelude::{
     AlignItems, App, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, default,
-    DespawnRecursiveExt, Display, Entity, EventReader, EventWriter, FlexDirection, in_state,
-    Interaction, IntoSystemConfigs, JustifyContent, JustifyText, NextState, NodeBundle, OnEnter,
-    OnExit, Plugin, PositionType, Query, ResMut, Style, Text, TextBundle, TextSection, TextStyle,
-    Update, Val, With, ZIndex,
+    DespawnRecursiveExt, Display, Entity, EventWriter, FlexDirection, in_state, Interaction,
+    IntoSystemConfigs, JustifyContent, JustifyText, NextState, NodeBundle, OnEnter, OnExit, Plugin,
+    PositionType, Query, Res, ResMut, Style, Text, TextBundle, TextSection, TextStyle, Update, Val,
+    With, ZIndex,
 };
 
 use crate::ApplicationState;
 use crate::game::GameState;
-use crate::game::player::CollidedWithEnemy;
+use crate::game::high_score::HighScore;
 use crate::ui::UIButton;
 
 pub struct GameOverMenuPlugin;
@@ -24,7 +24,6 @@ impl Plugin for GameOverMenuPlugin {
                     on_restart_button_pressed,
                     on_main_menu_button_pressed,
                     on_quit_button_pressed,
-                    update_final_score_text,
                 )
                     .run_if(in_state(ApplicationState::GameOver)),
             );
@@ -64,17 +63,6 @@ pub fn on_quit_button_pressed(
     for interaction in query.iter() {
         if *interaction == Interaction::Pressed {
             event_writer.send(AppExit);
-        }
-    }
-}
-
-pub fn update_final_score_text(
-    mut event_reader: EventReader<CollidedWithEnemy>,
-    mut text_query: Query<&mut Text, With<FinalScoreText>>,
-) {
-    for event in event_reader.read() {
-        for mut text in text_query.iter_mut() {
-            text.sections[0].value = format!("Final Score: {}", event.score.to_string());
         }
     }
 }
@@ -155,8 +143,20 @@ pub struct MainMenuButton {}
 #[derive(Component)]
 pub struct QuitButton {}
 
-pub fn spawn_game_over_menu(mut commands: Commands) {
-    build_game_over_menu(&mut commands);
+pub fn spawn_game_over_menu(mut commands: Commands, high_score: Option<Res<HighScore>>) {
+    let final_score: i32;
+    if let Some(high_score) = &high_score {
+        let last_value = high_score.scores.last();
+        if last_value.is_some() {
+            final_score = last_value.unwrap().1 as i32;
+        } else {
+            final_score = 0;
+        }
+    } else {
+        final_score = 0;
+    }
+
+    build_game_over_menu(&mut commands, final_score);
 }
 
 pub fn despawn_game_over_menu(
@@ -168,7 +168,7 @@ pub fn despawn_game_over_menu(
     }
 }
 
-pub fn build_game_over_menu(commands: &mut Commands) -> Entity {
+pub fn build_game_over_menu(commands: &mut Commands, final_score: i32) -> Entity {
     let game_over_menu_entity = commands
         .spawn((
             NodeBundle {
@@ -200,7 +200,7 @@ pub fn build_game_over_menu(commands: &mut Commands) -> Entity {
                         TextBundle {
                             text: Text {
                                 sections: vec![TextSection::new(
-                                    "Your final score was:",
+                                    format!("Final Score: {}", final_score.to_string()),
                                     get_final_score_text_style(),
                                 )],
                                 justify: JustifyText::Center,
