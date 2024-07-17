@@ -1,16 +1,16 @@
 use bevy::app::{App, AppExit, Update};
-use bevy::hierarchy::{BuildChildren, DespawnRecursiveExt};
 use bevy::prelude::{
-    AlignItems, Bundle, ButtonBundle, Changed, Color, Commands, Component, default, Entity,
-    EventWriter, FlexDirection, ImageBundle, in_state, Interaction, IntoSystemConfigs,
-    JustifyContent, JustifyText, NextState, NodeBundle, OnEnter, OnExit, Plugin, Query, Res,
-    ResMut, Style, Text, TextBundle, TextSection, TextStyle, UiImage, UiRect, Val, With,
+    AlignItems, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, default,
+    DespawnRecursiveExt, Entity, EventWriter, FlexDirection, ImageBundle, in_state, Interaction,
+    IntoSystemConfigs, JustifyContent, JustifyText, Name, NextState, NodeBundle, OnEnter, OnExit,
+    Plugin, Query, Res, ResMut, Style, Text, TextBundle, TextSection, TextStyle, UiImage, UiRect,
+    Val, With,
 };
 use bevy::text::BreakLineOn;
 
 use crate::ApplicationState;
 use crate::asset_handler::AssetHandler;
-use crate::ui::{BUTTON_COLOR_NORMAL, BUTTON_STYLE, UIButton};
+use crate::ui::UIButton;
 
 pub struct MainMenuPlugin;
 
@@ -48,6 +48,16 @@ pub fn on_quit_button_pressed(
     }
 }
 
+pub fn spawn_main_menu(mut commands: Commands, asset_handler: Res<AssetHandler>) {
+    build_main_menu(&mut commands, &asset_handler);
+}
+
+pub fn despawn_main_menu(mut commands: Commands, query: Query<Entity, With<MainMenu>>) {
+    if let Ok(main_menu_entity) = query.get_single() {
+        commands.entity(main_menu_entity).despawn_recursive();
+    }
+}
+
 #[derive(Component)]
 pub struct MainMenu;
 
@@ -60,17 +70,20 @@ pub struct PlayButton;
 #[derive(Component)]
 pub struct QuitButton;
 
-#[derive(Bundle)]
-pub struct MainMenuBundle {
-    main_menu: MainMenu,
-    node_bundle: NodeBundle,
-}
+const TITLE_IMAGE_STYLE: Style = {
+    let mut style = Style::DEFAULT;
+    style.width = Val::Px(64.0);
+    style.height = Val::Px(64.0);
+    style.margin = UiRect::new(Val::Px(8.0), Val::Px(8.0), Val::Px(8.0), Val::Px(8.0));
+    style
+};
 
-impl Default for MainMenuBundle {
-    fn default() -> Self {
-        Self {
-            main_menu: MainMenu {},
-            node_bundle: NodeBundle {
+pub fn build_main_menu(commands: &mut Commands, asset_handler: &Res<AssetHandler>) -> Entity {
+    commands
+        .spawn((
+            Name::new("Main Menu Screen"),
+            MainMenu {},
+            NodeBundle {
                 background_color: Color::DARK_GRAY.into(),
                 style: Style {
                     width: Val::Percent(100.0),
@@ -83,154 +96,78 @@ impl Default for MainMenuBundle {
                 },
                 ..default()
             },
-        }
-    }
-}
-
-#[derive(Bundle)]
-pub struct TitleSectionBundle {
-    title_section: TitleSection,
-    node_bundle: NodeBundle,
-}
-
-impl Default for TitleSectionBundle {
-    fn default() -> Self {
-        Self {
-            title_section: TitleSection {},
-            node_bundle: NodeBundle {
-                style: Style {
-                    width: Val::Px(300.0),
-                    height: Val::Px(120.0),
-                    flex_direction: FlexDirection::Row,
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    column_gap: Val::Px(20.0),
-                    ..default()
-                },
-                ..default()
-            },
-        }
-    }
-}
-
-#[derive(Bundle)]
-pub struct PlayButtonBundle {
-    ui_button: UIButton,
-    play_button: PlayButton,
-    button_bundle: ButtonBundle,
-}
-
-impl Default for PlayButtonBundle {
-    fn default() -> Self {
-        Self {
-            play_button: PlayButton {},
-            ui_button: UIButton {},
-            button_bundle: ButtonBundle {
-                background_color: BUTTON_COLOR_NORMAL.into(),
-                style: BUTTON_STYLE,
-                ..default()
-            },
-        }
-    }
-}
-
-#[derive(Bundle)]
-pub struct QuitButtonBundle {
-    ui_button: UIButton,
-    quit_button: QuitButton,
-    button_bundle: ButtonBundle,
-}
-
-impl Default for QuitButtonBundle {
-    fn default() -> Self {
-        Self {
-            ui_button: UIButton {},
-            quit_button: QuitButton {},
-            button_bundle: ButtonBundle {
-                background_color: BUTTON_COLOR_NORMAL.into(),
-                style: BUTTON_STYLE,
-                ..default()
-            },
-        }
-    }
-}
-
-pub fn spawn_main_menu(mut commands: Commands, asset_handler: Res<AssetHandler>) {
-    build_main_menu(&mut commands, &asset_handler);
-}
-
-pub fn despawn_main_menu(mut commands: Commands, query: Query<Entity, With<MainMenu>>) {
-    if let Ok(main_menu_entity) = query.get_single() {
-        commands.entity(main_menu_entity).despawn_recursive();
-    }
-}
-
-pub fn build_main_menu(commands: &mut Commands, asset_handler: &Res<AssetHandler>) -> Entity {
-    commands
-        .spawn(MainMenuBundle::default())
+        ))
         .with_children(|parent| {
-            // title
             parent
-                .spawn(TitleSectionBundle::default())
+                .spawn((
+                    Name::new("Title Section"),
+                    TitleSection {},
+                    NodeBundle {
+                        style: Style {
+                            width: Val::Px(300.0),
+                            height: Val::Px(120.0),
+                            flex_direction: FlexDirection::Row,
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            column_gap: Val::Px(20.0),
+                            ..default()
+                        },
+                        ..default()
+                    },
+                ))
                 .with_children(|parent| {
-                    // image 1
-                    parent.spawn(ImageBundle {
-                        style: Style {
-                            width: Val::Px(64.0),
-                            height: Val::Px(64.0),
-                            margin: UiRect::new(
-                                Val::Px(8.0),
-                                Val::Px(8.0),
-                                Val::Px(8.0),
-                                Val::Px(8.0),
-                            ),
+                    parent.spawn((
+                        Name::new("Left image on title section"),
+                        ImageBundle {
+                            style: TITLE_IMAGE_STYLE,
+                            image: UiImage {
+                                texture: asset_handler.player_texture.clone(),
+                                ..default()
+                            },
                             ..default()
                         },
-                        image: UiImage {
-                            texture: asset_handler.player_texture.clone(),
+                    ));
+                    parent.spawn((
+                        Name::new("Game title text"),
+                        TextBundle {
+                            text: Text {
+                                sections: vec![TextSection::new(
+                                    "Bevy Ball Game",
+                                    TextStyle {
+                                        font_size: 35.0,
+                                        ..default()
+                                    },
+                                )],
+                                justify: JustifyText::Center,
+                                linebreak_behavior: BreakLineOn::NoWrap,
+                                ..default()
+                            },
                             ..default()
                         },
-                        ..default()
-                    });
-                    // text
-                    parent.spawn(TextBundle {
-                        text: Text {
-                            sections: vec![TextSection::new(
-                                "Bevy Ball Game",
-                                TextStyle {
-                                    font_size: 35.0,
-                                    ..default()
-                                },
-                            )],
-                            justify: JustifyText::Center,
-                            linebreak_behavior: BreakLineOn::NoWrap,
+                    ));
+                    parent.spawn((
+                        Name::new("Right image on title section"),
+                        ImageBundle {
+                            style: TITLE_IMAGE_STYLE,
+                            image: UiImage {
+                                texture: asset_handler.enemy_texture.clone(),
+                                ..default()
+                            },
                             ..default()
                         },
-                        ..default()
-                    });
-                    // image 2
-                    parent.spawn(ImageBundle {
-                        style: Style {
-                            width: Val::Px(64.0),
-                            height: Val::Px(64.0),
-                            margin: UiRect::new(
-                                Val::Px(8.0),
-                                Val::Px(8.0),
-                                Val::Px(8.0),
-                                Val::Px(8.0),
-                            ),
-                            ..default()
-                        },
-                        image: UiImage {
-                            texture: asset_handler.enemy_texture.clone(),
-                            ..default()
-                        },
-                        ..default()
-                    });
+                    ));
                 });
-            // play button
             parent
-                .spawn(PlayButtonBundle::default())
+                .spawn((
+                    Name::new("Play Button"),
+                    PlayButton {},
+                    UIButton {},
+                    ButtonBundle {
+                        background_color: crate::ui::BUTTON_COLOR_NORMAL.into(),
+                        style: crate::ui::BUTTON_STYLE,
+                        ..default()
+                    },
+                ))
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
                         text: Text {
@@ -247,9 +184,17 @@ pub fn build_main_menu(commands: &mut Commands, asset_handler: &Res<AssetHandler
                         ..default()
                     });
                 });
-            // quit button
             parent
-                .spawn(QuitButtonBundle::default())
+                .spawn((
+                    Name::new("Quit Button"),
+                    QuitButton {},
+                    UIButton {},
+                    ButtonBundle {
+                        background_color: crate::ui::BUTTON_COLOR_NORMAL.into(),
+                        style: crate::ui::BUTTON_STYLE,
+                        ..default()
+                    },
+                ))
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
                         text: Text {
