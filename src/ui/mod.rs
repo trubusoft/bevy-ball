@@ -7,10 +7,12 @@ use bevy::prelude::{
 };
 
 use crate::ui::game_over_menu::GameOverMenuPlugin;
+use crate::ui::hud_menu::InGameHUDPlugin;
 use crate::ui::main_menu::MainMenuPlugin;
 use crate::ui::pause_menu::PauseMenuPlugin;
 
 mod game_over_menu;
+mod hud_menu;
 mod main_menu;
 mod pause_menu;
 
@@ -32,6 +34,7 @@ pub struct UIPlugin;
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(MainMenuPlugin)
+            .add_plugins(InGameHUDPlugin)
             .add_plugins(PauseMenuPlugin)
             .add_plugins(GameOverMenuPlugin)
             .add_systems(Update, handle_button_color_change.run_if(ui_button_present));
