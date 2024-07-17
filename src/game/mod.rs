@@ -1,9 +1,7 @@
 use bevy::app::App;
-use bevy::input::ButtonInput;
-use bevy::log::info;
 use bevy::prelude::{
-    Component, EventReader, in_state, IntoSystemConfigs, KeyCode, NextState, OnEnter, OnExit,
-    Plugin, Res, ResMut, State, States, Update,
+    ButtonInput, Component, EventReader, in_state, info, IntoSystemConfigs, KeyCode, NextState,
+    OnEnter, OnExit, Plugin, Res, ResMut, State, States, Update,
 };
 
 use crate::ApplicationState;
