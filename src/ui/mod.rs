@@ -6,9 +6,11 @@ use bevy::prelude::{
     JustifyContent, Plugin, Query, Style, Update, Val, With,
 };
 
+use crate::ui::game_over_menu::GameOverMenuPlugin;
 use crate::ui::main_menu::MainMenuPlugin;
 use crate::ui::pause_menu::PauseMenuPlugin;
 
+mod game_over_menu;
 mod main_menu;
 mod pause_menu;
 
@@ -31,14 +33,15 @@ impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(MainMenuPlugin)
             .add_plugins(PauseMenuPlugin)
-            .add_systems(Update, button_color_change.run_if(ui_button_present));
+            .add_plugins(GameOverMenuPlugin)
+            .add_systems(Update, handle_button_color_change.run_if(ui_button_present));
     }
 }
 
 #[derive(Component)]
 pub struct UIButton;
 
-pub fn button_color_change(
+pub fn handle_button_color_change(
     mut query: Query<(&Interaction, &mut BackgroundColor), (Changed<Interaction>, With<UIButton>)>,
 ) {
     for (interaction, mut background_color) in query.iter_mut() {
