@@ -6,10 +6,11 @@ use bevy::prelude::{
     JustifyContent, Plugin, Query, Style, Update, Val, With,
 };
 
-use crate::ApplicationState;
 use crate::ui::main_menu::MainMenuPlugin;
+use crate::ui::pause_menu::PauseMenuPlugin;
 
 mod main_menu;
+mod pause_menu;
 
 const BUTTON_STYLE: Style = {
     let mut style = Style::DEFAULT;
