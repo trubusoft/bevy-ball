@@ -62,8 +62,8 @@ pub const HUD_STYLE: Style = {
     style.flex_direction = FlexDirection::Row;
     style.justify_content = JustifyContent::SpaceBetween;
     style.align_items = AlignItems::Center;
-    style.height = Val::Percent(100.0);
-    style.width = Val::Percent(15.0);
+    style.width = Val::Percent(100.0);
+    style.height = Val::Percent(15.0);
     style
 };
 
