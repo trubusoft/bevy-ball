@@ -73,8 +73,8 @@ pub const LHS_STYLE: Style = {
     style.flex_direction = FlexDirection::Row;
     style.justify_content = JustifyContent::Center;
     style.align_items = AlignItems::Center;
-    style.height = Val::Px(200.0);
-    style.width = Val::Px(80.0);
+    style.width = Val::Px(200.0);
+    style.height = Val::Px(80.0);
     style.margin = UiRect::new(Val::Px(32.0), Val::Px(0.0), Val::Px(0.0), Val::Px(0.0));
     style
 };
@@ -85,8 +85,8 @@ pub const RHS_STYLE: Style = {
     style.flex_direction = FlexDirection::Row;
     style.justify_content = JustifyContent::Center;
     style.align_items = AlignItems::Center;
-    style.height = Val::Px(200.0);
-    style.width = Val::Px(80.0);
+    style.width = Val::Px(200.0);
+    style.height = Val::Px(80.0);
     style.margin = UiRect::new(Val::Px(0.0), Val::Px(32.0), Val::Px(0.0), Val::Px(0.0));
     style
 };
