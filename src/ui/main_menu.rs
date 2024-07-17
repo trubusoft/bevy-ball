@@ -10,6 +10,7 @@ use bevy::text::BreakLineOn;
 
 use crate::ApplicationState;
 use crate::asset_handler::AssetHandler;
+use crate::game::GameState;
 use crate::ui::UIButton;
 
 pub struct MainMenuPlugin;
@@ -28,11 +29,13 @@ impl Plugin for MainMenuPlugin {
 
 pub fn on_play_button_pressed(
     query: Query<&Interaction, (Changed<Interaction>, With<PlayButton>)>,
-    mut next_state: ResMut<NextState<ApplicationState>>,
+    mut application_state: ResMut<NextState<ApplicationState>>,
+    mut game_state: ResMut<NextState<GameState>>,
 ) {
     if let Ok(interaction) = query.get_single() {
         if *interaction == Interaction::Pressed {
-            next_state.set(ApplicationState::InGame);
+            application_state.set(ApplicationState::InGame);
+            game_state.set(GameState::Running);
         }
     }
 }

@@ -43,9 +43,9 @@ impl Plugin for GamePlugin {
 #[derive(States, Clone, Eq, PartialEq, Hash, Debug, Default)]
 pub enum GameState {
     #[default]
+    Stop,
     Running,
     Paused,
-    Stop,
 }
 
 pub fn toggle_pause(
