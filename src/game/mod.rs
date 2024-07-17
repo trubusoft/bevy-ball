@@ -1,9 +1,7 @@
 use bevy::app::App;
-use bevy::input::ButtonInput;
-use bevy::log::info;
 use bevy::prelude::{
-    Component, EventReader, in_state, IntoSystemConfigs, KeyCode, NextState, OnEnter, OnExit,
-    Plugin, Res, ResMut, State, States, Update,
+    ButtonInput, Component, EventReader, in_state, info, IntoSystemConfigs, KeyCode, NextState,
+    OnEnter, OnExit, Plugin, Res, ResMut, State, States, Update,
 };
 
 use crate::ApplicationState;
@@ -38,13 +36,14 @@ impl Plugin for GamePlugin {
                 Update,
                 toggle_pause.run_if(in_state(ApplicationState::InGame)),
             )
-            .add_systems(Update, on_collided_with_enemy_set_pause);
+            .add_systems(Update, on_collided_with_enemy_set_game_over);
     }
 }
 
 #[derive(States, Clone, Eq, PartialEq, Hash, Debug, Default)]
 pub enum GameState {
     #[default]
+    Stop,
     Running,
     Paused,
 }
@@ -62,6 +61,7 @@ pub fn toggle_pause(
             GameState::Paused => {
                 resume_game(next_state);
             }
+            _ => {}
         }
     }
 }
@@ -76,12 +76,12 @@ pub fn resume_game(mut next_state: ResMut<NextState<GameState>>) {
     info!("{:?}", GameState::Running);
 }
 
-pub fn on_collided_with_enemy_set_pause(
+pub fn on_collided_with_enemy_set_game_over(
     mut event_reader: EventReader<CollidedWithEnemy>,
-    mut next_state: ResMut<NextState<GameState>>,
+    mut game_state: ResMut<NextState<GameState>>,
 ) {
     for _event in event_reader.read() {
-        next_state.set(GameState::Paused);
+        game_state.set(GameState::Stop);
     }
 }
 

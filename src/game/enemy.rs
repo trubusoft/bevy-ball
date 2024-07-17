@@ -7,8 +7,9 @@ use bevy::prelude::{
 use bevy::window::PrimaryWindow;
 
 use crate::{ApplicationState, ScheduleDespawn};
+use crate::asset_handler::AssetHandler;
 use crate::game::{Confined, GameState, Size};
-use crate::helpers::{AudioHelper, RandomHelper, SpriteHelper};
+use crate::helpers::{AudioHelper, RandomHelper};
 
 pub struct EnemyPlugin;
 
@@ -57,7 +58,7 @@ impl EnemyBundle {
 
     pub fn at_randomized_location(
         window: &Window,
-        asset_server: &Res<AssetServer>,
+        asset_handler: &Res<AssetHandler>,
     ) -> (Name, Enemy, Confined, Size, SpriteBundle) {
         let random_x = RandomHelper::random_f32() * window.width();
         let random_y = RandomHelper::random_f32() * window.height();
@@ -71,7 +72,7 @@ impl EnemyBundle {
             Size { value: ENEMY_SIZE },
             SpriteBundle {
                 transform: Transform::from_xyz(random_x, random_y, 0.0),
-                texture: asset_server.load(SpriteHelper::enemy_sprite()),
+                texture: asset_handler.enemy_texture.clone(),
                 ..default()
             },
         )
@@ -93,12 +94,12 @@ impl Default for EnemySpawnTimer {
 
 pub fn spawn_initial_enemies(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    asset_handler: Res<AssetHandler>,
     window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
     if let Ok(window) = window_query.get_single() {
         for _ in 0..NUMBER_OF_ENEMIES {
-            commands.spawn(EnemyBundle::at_randomized_location(window, &asset_server));
+            commands.spawn(EnemyBundle::at_randomized_location(window, &asset_handler));
         }
     }
 }
@@ -150,11 +151,11 @@ pub fn spawn_enemy_overtime(
     mut commands: Commands,
     enemy_spawn_timer: Res<EnemySpawnTimer>,
     window_query: Query<&Window, With<PrimaryWindow>>,
-    asset_server: Res<AssetServer>,
+    asset_handler: Res<AssetHandler>,
 ) {
     if enemy_spawn_timer.timer.just_finished() {
         if let Ok(window) = window_query.get_single() {
-            commands.spawn(EnemyBundle::at_randomized_location(window, &asset_server));
+            commands.spawn(EnemyBundle::at_randomized_location(window, &asset_handler));
         }
     }
 }

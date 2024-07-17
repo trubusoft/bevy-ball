@@ -8,8 +8,10 @@ use bevy::window::PrimaryWindow;
 
 use game::player::CollidedWithEnemy;
 
+use crate::asset_handler::AssetHandlerPlugin;
 use crate::helpers::WindowHelper;
 
+mod asset_handler;
 pub mod game;
 pub mod helpers;
 pub mod ui;
@@ -18,7 +20,8 @@ pub struct ApplicationPlugin;
 
 impl Plugin for ApplicationPlugin {
     fn build(&self, app: &mut App) {
-        app.init_state::<ApplicationState>()
+        app.add_plugins(AssetHandlerPlugin)
+            .init_state::<ApplicationState>()
             .add_systems(Startup, spawn_camera)
             .add_systems(Update, exit_on_escape)
             .add_systems(Update, transition_in_game_state)

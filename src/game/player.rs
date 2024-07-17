@@ -1,16 +1,17 @@
 use bevy::prelude::{
     App, AssetServer, Bundle, ButtonInput, Commands, Component, default, Entity, Event, EventReader,
-    EventWriter, in_state, IntoSystemConfigs, KeyCode, Name, OnEnter, OnExit, Plugin, Query,
-    Res, ResMut, SpriteBundle, Time, Transform, Update, Window, With, Without,
+    EventWriter, in_state, info, IntoSystemConfigs, KeyCode, Name, OnEnter, OnExit, Plugin,
+    Query, Res, ResMut, SpriteBundle, Time, Transform, Update, Window, With, Without,
 };
 use bevy::window::PrimaryWindow;
 
 use crate::{ApplicationState, ScheduleDespawn};
+use crate::asset_handler::AssetHandler;
 use crate::game::{Confined, GameState, Size};
 use crate::game::enemy::{Enemy, ENEMY_SIZE};
 use crate::game::score::Score;
 use crate::game::star::{Star, STAR_SIZE};
-use crate::helpers::{AudioHelper, MovementHelper, SpriteHelper, WindowHelper};
+use crate::helpers::{AudioHelper, MovementHelper, WindowHelper};
 
 pub struct PlayerPlugin;
 
@@ -37,8 +38,11 @@ impl Plugin for PlayerPlugin {
             .add_systems(
                 Update,
                 (
-                    on_hit_enemy_emit_collide_event,
-                    on_enemy_collide_despawn_player,
+                    (
+                        on_hit_enemy_emit_collide_event,
+                        on_enemy_collide_despawn_player,
+                    )
+                        .chain(),
                     on_enemy_collide_play_game_over_sound,
                     on_star_collide_play_star_despawn_sound,
                     on_star_collide_event_add_score,
@@ -77,7 +81,7 @@ pub struct PlayerBundle {
 impl PlayerBundle {
     pub fn at_center_of_the_screen(
         window: &Window,
-        asset_server: &Res<AssetServer>,
+        asset_handler: &Res<AssetHandler>,
     ) -> (Name, Player, Confined, Size, SpriteBundle) {
         (
             Name::new("Player"),
@@ -86,7 +90,7 @@ impl PlayerBundle {
             Size { value: PLAYER_SIZE },
             SpriteBundle {
                 transform: WindowHelper::center(window),
-                texture: asset_server.load(SpriteHelper::player_sprite()),
+                texture: asset_handler.player_texture.clone(),
                 ..default()
             },
         )
@@ -96,10 +100,13 @@ impl PlayerBundle {
 pub fn spawn_player(
     mut commands: Commands,
     window_query: Query<&Window, With<PrimaryWindow>>,
-    asset_server: Res<AssetServer>,
+    asset_handler: Res<AssetHandler>,
 ) {
     if let Ok(window) = window_query.get_single() {
-        commands.spawn(PlayerBundle::at_center_of_the_screen(window, &asset_server));
+        commands.spawn(PlayerBundle::at_center_of_the_screen(
+            window,
+            &asset_handler,
+        ));
     }
 }
 
@@ -130,6 +137,7 @@ pub fn on_hit_enemy_emit_collide_event(
             );
 
             if is_collided {
+                info!("Event Writer: CollidedWithEnemy");
                 if let Some(score) = &score {
                     event_writer.send(CollidedWithEnemy { score: score.value });
                 } else {
