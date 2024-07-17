@@ -1,11 +1,12 @@
 use std::convert::Into;
 
-use bevy::app::App;
+use bevy::app::{App, AppExit};
 use bevy::prelude::{
     AlignItems, BackgroundColor, BuildChildren, Bundle, ButtonBundle, Changed, Color, Commands,
-    Component, DespawnRecursiveExt, Entity, FlexDirection, ImageBundle, in_state, Interaction,
-    IntoSystemConfigs, JustifyContent, JustifyText, NodeBundle, OnEnter, OnExit, Or, Plugin, Query,
-    Res, Style, Text, TextBundle, TextSection, TextStyle, UiImage, UiRect, Update, Val, With,
+    Component, DespawnRecursiveExt, Entity, EventWriter, FlexDirection, ImageBundle, in_state,
+    Interaction, IntoSystemConfigs, JustifyContent, JustifyText, NextState, NodeBundle, OnEnter,
+    OnExit, Or, Plugin, Query, Res, ResMut, Style, Text, TextBundle, TextSection, TextStyle,
+    UiImage, UiRect, Update, Val, With,
 };
 use bevy::text::BreakLineOn;
 use bevy::utils::default;
@@ -34,7 +35,12 @@ impl Plugin for UIPlugin {
             .add_systems(OnExit(ApplicationState::MainMenu), despawn_main_menu)
             .add_systems(
                 Update,
-                button_color_change.run_if(in_state(ApplicationState::MainMenu)),
+                (
+                    button_color_change,
+                    on_play_button_pressed,
+                    on_quit_button_pressed,
+                )
+                    .run_if(in_state(ApplicationState::MainMenu)),
             );
     }
 }
@@ -271,6 +277,28 @@ pub fn button_color_change(
             Interaction::Pressed => *background_color = BUTTON_COLOR_PRESSED.into(),
             Interaction::Hovered => *background_color = BUTTON_COLOR_HOVERED.into(),
             Interaction::None => *background_color = BUTTON_COLOR_NORMAL.into(),
+        }
+    }
+}
+
+pub fn on_play_button_pressed(
+    query: Query<&Interaction, (Changed<Interaction>, With<PlayButton>)>,
+    mut next_state: ResMut<NextState<ApplicationState>>,
+) {
+    if let Ok(interaction) = query.get_single() {
+        if *interaction == Interaction::Pressed {
+            next_state.set(ApplicationState::InGame);
+        }
+    }
+}
+
+pub fn on_quit_button_pressed(
+    query: Query<&Interaction, (Changed<Interaction>, With<QuitButton>)>,
+    mut event_writer: EventWriter<AppExit>,
+) {
+    if let Ok(interaction) = query.get_single() {
+        if *interaction == Interaction::Pressed {
+            event_writer.send(AppExit);
         }
     }
 }
