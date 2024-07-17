@@ -21,7 +21,7 @@ const BUTTON_STYLE: Style = {
 };
 
 const BUTTON_COLOR_NORMAL: Color = Color::rgb(0.15, 0.15, 0.15);
-const BUTTON_COLOR_HOVERED: Color = Color::rgb(0.25, 0.25, 0.25);
+const BUTTON_COLOR_HOVERED: Color = Color::rgb(0.35, 0.35, 0.35);
 const BUTTON_COLOR_PRESSED: Color = Color::rgb(0.35, 0.75, 0.35);
 
 pub struct UIPlugin;
