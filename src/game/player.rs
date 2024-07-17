@@ -1,7 +1,7 @@
 use bevy::prelude::{
     App, AssetServer, Bundle, ButtonInput, Commands, Component, default, Entity, Event, EventReader,
-    EventWriter, in_state, IntoSystemConfigs, KeyCode, Name, OnEnter, OnExit, Plugin, Query,
-    Res, ResMut, SpriteBundle, Time, Transform, Update, Window, With, Without,
+    EventWriter, in_state, info, IntoSystemConfigs, KeyCode, Name, OnEnter, OnExit, Plugin,
+    Query, Res, ResMut, SpriteBundle, Time, Transform, Update, Window, With, Without,
 };
 use bevy::window::PrimaryWindow;
 
@@ -38,8 +38,11 @@ impl Plugin for PlayerPlugin {
             .add_systems(
                 Update,
                 (
-                    on_hit_enemy_emit_collide_event,
-                    on_enemy_collide_despawn_player,
+                    (
+                        on_hit_enemy_emit_collide_event,
+                        on_enemy_collide_despawn_player,
+                    )
+                        .chain(),
                     on_enemy_collide_play_game_over_sound,
                     on_star_collide_play_star_despawn_sound,
                     on_star_collide_event_add_score,
@@ -134,6 +137,7 @@ pub fn on_hit_enemy_emit_collide_event(
             );
 
             if is_collided {
+                info!("Event Writer: CollidedWithEnemy");
                 if let Some(score) = &score {
                     event_writer.send(CollidedWithEnemy { score: score.value });
                 } else {
