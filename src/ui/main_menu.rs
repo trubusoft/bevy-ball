@@ -143,7 +143,6 @@ pub fn build_main_menu(commands: &mut Commands, asset_handler: &Res<AssetHandler
                                 )],
                                 justify: JustifyText::Center,
                                 linebreak_behavior: BreakLineOn::NoWrap,
-                                ..default()
                             },
                             ..default()
                         },
