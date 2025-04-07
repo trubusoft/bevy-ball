@@ -95,7 +95,7 @@ pub struct MainMenuButton {}
 #[derive(Component)]
 pub struct QuitButton {}
 
-pub const PAUSE_MENU_BACKGROUND_COLOR: Color = Color::rgba(0.25, 0.25, 0.25, 0.5);
+pub const PAUSE_MENU_BACKGROUND_COLOR: Color = Color::srgba(0.25, 0.25, 0.25, 0.5);
 
 pub const PAUSE_MENU_STYLE: Node = {
     let mut style = Node::DEFAULT;

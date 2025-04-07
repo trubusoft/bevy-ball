@@ -67,9 +67,9 @@ pub fn on_quit_button_pressed(
     }
 }
 
-pub const BACKGROUND_COLOR: Color = Color::rgba(0.25, 0.25, 0.25, 0.5);
+pub const BACKGROUND_COLOR: Color = Color::srgba(0.25, 0.25, 0.25, 0.5);
 
-pub const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
+pub const NORMAL_BUTTON: Color = Color::srgb(0.15, 0.15, 0.15);
 
 pub const GAME_OVER_MENU_STYLE: Node = {
     let mut style = Node::DEFAULT;
