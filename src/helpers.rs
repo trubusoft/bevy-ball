@@ -40,7 +40,7 @@ impl MovementHelper {
             direction = direction.normalize();
         }
 
-        return direction;
+        direction
     }
 
     pub fn confine(window: &Window, unit_translation: Vec3, unit_size: f32) -> Vec3 {
@@ -114,11 +114,11 @@ impl AudioHelper {
     }
 
     fn bounce_sound() -> String {
-        return if RandomHelper::random_f32() < 0.5 {
+        if RandomHelper::random_f32() < 0.5 {
             "audio/pluck_001.ogg".to_string()
         } else {
             "audio/pluck_002.ogg".to_string()
-        };
+        }
     }
 
     fn obtain_star_sound() -> String {
