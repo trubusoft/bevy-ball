@@ -1,15 +1,15 @@
 use bevy::prelude::{
-    AlignItems, App, BuildChildren, Color, Commands, Component, default, DespawnRecursiveExt,
-    DetectChanges, Display, Entity, FlexDirection, ImageBundle, in_state,
-    IntoSystemConfigs, JustifyContent, JustifyText, NodeBundle, OnEnter, OnExit, Plugin, Query,
-    Res, Style, Text, TextBundle, TextSection, TextStyle, UiImage, UiRect, Update, Val, With,
+    default, in_state, AlignItems, App, BuildChildren, ChildBuild, Color, Commands, Component,
+    DespawnRecursiveExt, DetectChanges, Display, Entity, FlexDirection, ImageNode,
+    IntoSystemConfigs, JustifyContent, JustifyText, Node, OnEnter, OnExit, Plugin, Query, Res,
+    Text, TextColor, TextFont, TextLayout, UiRect, Update, Val, With,
 };
 
-use crate::ApplicationState;
 use crate::asset_handler::AssetHandler;
 use crate::game::enemy::Enemy;
-use crate::game::GameState;
 use crate::game::score::Score;
+use crate::game::GameState;
+use crate::ApplicationState;
 
 pub struct InGameHUDPlugin;
 
@@ -39,7 +39,7 @@ pub fn despawn_hud(mut commands: Commands, hud_query: Query<Entity, With<HUD>>) 
 pub fn update_score_text(mut text_query: Query<&mut Text, With<ScoreText>>, score: Res<Score>) {
     if score.is_changed() {
         for mut text in text_query.iter_mut() {
-            text.sections[0].value = format!("{}", score.value.to_string());
+            // text.sections[0].value = format!("{}", score.value.to_string());
         }
     }
 }
@@ -50,14 +50,14 @@ pub fn update_enemy_text(
 ) {
     let count = enemy_query.iter().count();
     for mut text in text_query.iter_mut() {
-        text.sections[0].value = format!("{}", count.to_string());
+        // text.sections[0].value = format!("{}", count.to_string());
     }
 }
 
 pub const BACKGROUND_COLOR: Color = Color::rgba(0.25, 0.25, 0.25, 0.5);
 
-pub const HUD_STYLE: Style = {
-    let mut style = Style::DEFAULT;
+pub const HUD_STYLE: Node = {
+    let mut style = Node::DEFAULT;
     style.display = Display::Flex;
     style.flex_direction = FlexDirection::Row;
     style.justify_content = JustifyContent::SpaceBetween;
@@ -67,8 +67,8 @@ pub const HUD_STYLE: Style = {
     style
 };
 
-pub const LHS_STYLE: Style = {
-    let mut style = Style::DEFAULT;
+pub const LHS_STYLE: Node = {
+    let mut style = Node::DEFAULT;
     style.display = Display::Flex;
     style.flex_direction = FlexDirection::Row;
     style.justify_content = JustifyContent::Center;
@@ -79,8 +79,8 @@ pub const LHS_STYLE: Style = {
     style
 };
 
-pub const RHS_STYLE: Style = {
-    let mut style = Style::DEFAULT;
+pub const RHS_STYLE: Node = {
+    let mut style = Node::DEFAULT;
     style.display = Display::Flex;
     style.flex_direction = FlexDirection::Row;
     style.justify_content = JustifyContent::Center;
@@ -91,21 +91,13 @@ pub const RHS_STYLE: Style = {
     style
 };
 
-pub const IMAGE_STYLE: Style = {
-    let mut style = Style::DEFAULT;
+pub const IMAGE_STYLE: Node = {
+    let mut style = Node::DEFAULT;
     style.height = Val::Px(48.0);
     style.width = Val::Px(48.0);
     style.margin = UiRect::new(Val::Px(8.0), Val::Px(8.0), Val::Px(8.0), Val::Px(8.0));
     style
 };
-
-pub fn get_text_style() -> TextStyle {
-    TextStyle {
-        font_size: 64.0,
-        color: Color::rgb(1.0, 1.0, 1.0),
-        ..default()
-    }
-}
 
 #[derive(Component)]
 pub struct HUD {}
@@ -118,75 +110,50 @@ pub struct EnemyText {}
 
 pub fn build_hud(commands: &mut Commands, asset_handler: &Res<AssetHandler>) -> Entity {
     let hud_entity = commands
-        .spawn((
-            NodeBundle {
-                style: HUD_STYLE,
-                ..default()
-            },
-            HUD {},
-        ))
+        .spawn(HUD_STYLE)
         .with_children(|parent| {
             // LHS
-            parent
-                .spawn(NodeBundle {
-                    style: LHS_STYLE,
-                    background_color: BACKGROUND_COLOR.into(),
-                    ..default()
-                })
-                .with_children(|parent| {
-                    // Star Image
-                    parent.spawn(ImageBundle {
-                        style: IMAGE_STYLE,
-                        image: UiImage {
-                            texture: asset_handler.star_texture.clone(),
-                            ..default()
-                        },
+            parent.spawn(LHS_STYLE).with_children(|parent| {
+                // Star Image
+                parent.spawn((
+                    IMAGE_STYLE,
+                    ImageNode::new(asset_handler.star_texture.clone()),
+                ));
+                // Score Text
+                parent.spawn((
+                    Text::new("0"),
+                    TextFont {
+                        font_size: 64.0,
                         ..default()
-                    });
-                    // Score Text
-                    parent.spawn((
-                        TextBundle {
-                            style: Style { ..default() },
-                            text: Text {
-                                sections: vec![TextSection::new("0", get_text_style())],
-                                justify: JustifyText::Center,
-                                ..default()
-                            },
-                            ..default()
-                        },
-                        ScoreText {},
-                    ));
-                });
+                    },
+                    TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                    TextLayout::new_with_justify(JustifyText::Center),
+                    ScoreText {},
+                ));
+            });
             // RHS
             parent
-                .spawn(NodeBundle {
-                    style: RHS_STYLE,
-                    background_color: BACKGROUND_COLOR.into(),
-                    ..default()
-                })
+                .spawn((
+                    RHS_STYLE,
+                    //background_color: crate::ui::hud_menu::BACKGROUND_COLOR.into(),
+                ))
                 .with_children(|parent| {
                     // Enemy Text
                     parent.spawn((
-                        TextBundle {
-                            style: Style { ..default() },
-                            text: Text {
-                                sections: vec![TextSection::new("0", get_text_style())],
-                                justify: JustifyText::Center,
-                                ..default()
-                            },
+                        Text::new("0"),
+                        TextFont {
+                            font_size: 64.0,
                             ..default()
                         },
+                        TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                        TextLayout::new_with_justify(JustifyText::Center),
                         EnemyText {},
                     ));
                     // Enemy Image
-                    parent.spawn(ImageBundle {
-                        style: IMAGE_STYLE,
-                        image: UiImage {
-                            texture: asset_handler.enemy_texture.clone(),
-                            ..default()
-                        },
-                        ..default()
-                    });
+                    parent.spawn((
+                        ImageNode::new(asset_handler.enemy_texture.clone()),
+                        // style: crate::ui::hud_menu::IMAGE_STYLE,
+                    ));
                 });
         })
         .id();

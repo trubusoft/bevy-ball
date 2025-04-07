@@ -1,14 +1,15 @@
 use bevy::app::{App, Update};
 use bevy::asset::AssetServer;
 use bevy::prelude::{
-    Commands, Component, default, Entity, in_state, IntoSystemConfigs, OnEnter, OnExit, Plugin,
-    Query, Res, ResMut, Resource, SpriteBundle, Time, Timer, TimerMode, Transform, Window, With,
+    in_state, Commands, Component, Entity, IntoSystemConfigs, OnEnter, OnExit, Plugin,
+    Query, Res, ResMut, Resource, Sprite, Time, Timer, TimerMode, Transform, Window,
+    With,
 };
 use bevy::window::PrimaryWindow;
 
-use crate::{ApplicationState, ScheduleDespawn};
 use crate::game::GameState;
 use crate::helpers::RandomHelper;
+use crate::{ApplicationState, ScheduleDespawn};
 
 pub struct StarPlugin;
 
@@ -58,11 +59,8 @@ pub fn spawn_initial_stars(
 
             commands.spawn((
                 Star {},
-                SpriteBundle {
-                    transform: Transform::from_xyz(random_x, random_y, 0.0),
-                    texture: asset_server.load("sprites/star.png"),
-                    ..default()
-                },
+                Sprite::from_image(asset_server.load("sprites/star.png")),
+                Transform::from_xyz(random_x, random_y, 0.0),
             ));
         }
     }
@@ -85,11 +83,8 @@ pub fn spawn_stars_overtime(
 
             commands.spawn((
                 Star {},
-                SpriteBundle {
-                    transform: Transform::from_xyz(random_x, random_y, 0.0),
-                    texture: asset_server.load("sprites/star.png"),
-                    ..default()
-                },
+                Sprite::from_image(asset_server.load("sprites/star.png")),
+                Transform::from_xyz(random_x, random_y, 0.0),
             ));
         }
     }

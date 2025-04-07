@@ -3,7 +3,7 @@ use std::convert::Into;
 use bevy::app::App;
 use bevy::prelude::{
     AlignItems, BackgroundColor, Changed, Color, Component, Interaction, IntoSystemConfigs,
-    JustifyContent, Plugin, Query, Style, Update, Val, With,
+    JustifyContent, Node, Plugin, Query, Update, Val, With,
 };
 
 use crate::ui::game_over_menu::GameOverMenuPlugin;
@@ -16,8 +16,8 @@ mod hud_menu;
 mod main_menu;
 mod pause_menu;
 
-const BUTTON_STYLE: Style = {
-    let mut style = Style::DEFAULT;
+const BUTTON_STYLE: Node = {
+    let mut style = Node::DEFAULT;
     style.width = Val::Px(200.0);
     style.height = Val::Px(80.0);
     style.justify_content = JustifyContent::Center;

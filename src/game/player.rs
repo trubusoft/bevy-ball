@@ -1,17 +1,17 @@
 use bevy::prelude::{
-    App, AssetServer, Bundle, ButtonInput, Commands, Component, default, Entity, Event, EventReader,
-    EventWriter, in_state, info, IntoSystemConfigs, KeyCode, Name, OnEnter, OnExit, Plugin,
-    Query, Res, ResMut, SpriteBundle, Time, Transform, Update, Window, With, Without,
+    default, in_state, info, App, AssetServer, Bundle, ButtonInput, Commands, Component, Entity,
+    Event, EventReader, EventWriter, IntoSystemConfigs, KeyCode, Name, OnEnter, OnExit, Plugin,
+    Query, Res, ResMut, Sprite, SpriteBundle, Time, Transform, Update, Window, With, Without,
 };
 use bevy::window::PrimaryWindow;
 
-use crate::{ApplicationState, ScheduleDespawn};
 use crate::asset_handler::AssetHandler;
-use crate::game::{Confined, GameState, Size};
 use crate::game::enemy::{Enemy, ENEMY_SIZE};
 use crate::game::score::Score;
 use crate::game::star::{Star, STAR_SIZE};
+use crate::game::{Confined, GameState, Size};
 use crate::helpers::{AudioHelper, MovementHelper, WindowHelper};
+use crate::{ApplicationState, ScheduleDespawn};
 
 pub struct PlayerPlugin;
 
@@ -82,17 +82,14 @@ impl PlayerBundle {
     pub fn at_center_of_the_screen(
         window: &Window,
         asset_handler: &Res<AssetHandler>,
-    ) -> (Name, Player, Confined, Size, SpriteBundle) {
+    ) -> (Name, Player, Confined, Size, Sprite, Transform) {
         (
             Name::new("Player"),
             Player {},
             Confined {},
             Size { value: PLAYER_SIZE },
-            SpriteBundle {
-                transform: WindowHelper::center(window),
-                texture: asset_handler.player_texture.clone(),
-                ..default()
-            },
+            Sprite::from_image(asset_handler.player_texture.clone()),
+            WindowHelper::center(window),
         )
     }
 }
@@ -117,7 +114,7 @@ pub fn movement(
 ) {
     if let Ok(mut transform) = player_query.get_single_mut() {
         let movement_direction = MovementHelper::handle_input(keyboard_input);
-        transform.translation += movement_direction * PLAYER_SPEED * time.delta_seconds();
+        transform.translation += movement_direction * PLAYER_SPEED * time.delta_secs();
     }
 }
 

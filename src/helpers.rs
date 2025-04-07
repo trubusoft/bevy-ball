@@ -1,8 +1,8 @@
 use bevy::asset::AssetServer;
-use bevy::audio::{AudioBundle, PlaybackSettings};
+use bevy::audio::AudioPlayer;
 use bevy::input::ButtonInput;
 use bevy::math::Vec3;
-use bevy::prelude::{KeyCode, Res, Transform, Window};
+use bevy::prelude::{AudioSource, KeyCode, Res, Transform, Window};
 use rand::random;
 
 pub struct WindowHelper {}
@@ -94,22 +94,19 @@ impl RandomHelper {
 pub struct AudioHelper {}
 
 impl AudioHelper {
-    fn play_once(asset_server: &Res<AssetServer>, file_name: String) -> AudioBundle {
-        AudioBundle {
-            source: asset_server.load(file_name),
-            settings: PlaybackSettings::DESPAWN,
-        }
+    fn play_once(asset_server: &Res<AssetServer>, file_name: String) -> AudioPlayer {
+        AudioPlayer::<AudioSource>(asset_server.load(file_name))
     }
 
-    pub fn play_bounce_sound(asset_server: &Res<AssetServer>) -> AudioBundle {
+    pub fn play_bounce_sound(asset_server: &Res<AssetServer>) -> AudioPlayer {
         Self::play_once(&asset_server, AudioHelper::bounce_sound())
     }
 
-    pub fn play_obtain_star_sound(asset_server: &Res<AssetServer>) -> AudioBundle {
+    pub fn play_obtain_star_sound(asset_server: &Res<AssetServer>) -> AudioPlayer {
         Self::play_once(&asset_server, AudioHelper::obtain_star_sound())
     }
 
-    pub fn play_game_over_sound(asset_server: &Res<AssetServer>) -> AudioBundle {
+    pub fn play_game_over_sound(asset_server: &Res<AssetServer>) -> AudioPlayer {
         Self::play_once(&asset_server, AudioHelper::game_over_sound())
     }
 

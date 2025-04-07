@@ -1,17 +1,16 @@
 use bevy::app::{App, AppExit, Update};
+use bevy::color::Color;
 use bevy::prelude::{
-    AlignItems, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, default,
-    DespawnRecursiveExt, Entity, EventWriter, FlexDirection, ImageBundle, in_state, Interaction,
-    IntoSystemConfigs, JustifyContent, JustifyText, Name, NextState, NodeBundle, OnEnter, OnExit,
-    Plugin, Query, Res, ResMut, Style, Text, TextBundle, TextSection, TextStyle, UiImage, UiRect,
-    Val, With,
+    default, in_state, AlignItems, BuildChildren, Button, Changed, ChildBuild, Commands, Component,
+    DespawnRecursiveExt, Entity, EventWriter, FlexDirection, ImageNode, Interaction,
+    IntoSystemConfigs, JustifyContent, JustifyText, LineBreak, Name, NextState, Node, OnEnter,
+    OnExit, Plugin, Query, Res, ResMut, Text, TextColor, TextFont, TextLayout, UiRect, Val, With,
 };
-use bevy::text::BreakLineOn;
 
-use crate::ApplicationState;
 use crate::asset_handler::AssetHandler;
 use crate::game::GameState;
 use crate::ui::UIButton;
+use crate::ApplicationState;
 
 pub struct MainMenuPlugin;
 
@@ -46,7 +45,7 @@ pub fn on_quit_button_pressed(
 ) {
     if let Ok(interaction) = query.get_single() {
         if *interaction == Interaction::Pressed {
-            event_writer.send(AppExit);
+            event_writer.send(AppExit::Success);
         }
     }
 }
@@ -73,8 +72,8 @@ pub struct PlayButton;
 #[derive(Component)]
 pub struct QuitButton;
 
-const TITLE_IMAGE_STYLE: Style = {
-    let mut style = Style::DEFAULT;
+const TITLE_IMAGE_STYLE: Node = {
+    let mut style = Node::DEFAULT;
     style.width = Val::Px(64.0);
     style.height = Val::Px(64.0);
     style.margin = UiRect::new(Val::Px(8.0), Val::Px(8.0), Val::Px(8.0), Val::Px(8.0));
@@ -86,77 +85,55 @@ pub fn build_main_menu(commands: &mut Commands, asset_handler: &Res<AssetHandler
         .spawn((
             Name::new("Main Menu Screen"),
             MainMenu {},
-            NodeBundle {
-                background_color: Color::DARK_GRAY.into(),
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    flex_direction: FlexDirection::Column,
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    row_gap: Val::Px(8.0),
-                    ..default()
-                },
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                row_gap: Val::Px(8.0),
                 ..default()
             },
+            // background_color: Color::WHITE.into(),
         ))
         .with_children(|parent| {
             parent
                 .spawn((
                     Name::new("Title Section"),
                     TitleSection {},
-                    NodeBundle {
-                        style: Style {
-                            width: Val::Px(300.0),
-                            height: Val::Px(120.0),
-                            flex_direction: FlexDirection::Row,
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            column_gap: Val::Px(20.0),
-                            ..default()
-                        },
+                    Node {
+                        width: Val::Px(300.0),
+                        height: Val::Px(120.0),
+                        flex_direction: FlexDirection::Row,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        column_gap: Val::Px(20.0),
                         ..default()
                     },
                 ))
                 .with_children(|parent| {
                     parent.spawn((
                         Name::new("Left image on title section"),
-                        ImageBundle {
-                            style: TITLE_IMAGE_STYLE,
-                            image: UiImage {
-                                texture: asset_handler.player_texture.clone(),
-                                ..default()
-                            },
-                            ..default()
-                        },
+                        ImageNode::new(asset_handler.player_texture.clone()),
+                        TITLE_IMAGE_STYLE,
                     ));
                     parent.spawn((
                         Name::new("Game title text"),
-                        TextBundle {
-                            text: Text {
-                                sections: vec![TextSection::new(
-                                    "Bevy Ball Game",
-                                    TextStyle {
-                                        font_size: 35.0,
-                                        ..default()
-                                    },
-                                )],
-                                justify: JustifyText::Center,
-                                linebreak_behavior: BreakLineOn::NoWrap,
-                            },
+                        Text::new("Bevy Ball Game"),
+                        TextFont {
+                            font_size: 35.0,
                             ..default()
+                        },
+                        TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                        TextLayout {
+                            justify: JustifyText::Center,
+                            linebreak: LineBreak::NoWrap,
                         },
                     ));
                     parent.spawn((
                         Name::new("Right image on title section"),
-                        ImageBundle {
-                            style: TITLE_IMAGE_STYLE,
-                            image: UiImage {
-                                texture: asset_handler.enemy_texture.clone(),
-                                ..default()
-                            },
-                            ..default()
-                        },
+                        ImageNode::new(asset_handler.enemy_texture.clone()),
+                        TITLE_IMAGE_STYLE,
                     ));
                 });
             parent
@@ -164,54 +141,40 @@ pub fn build_main_menu(commands: &mut Commands, asset_handler: &Res<AssetHandler
                     Name::new("Play Button"),
                     PlayButton {},
                     UIButton {},
-                    ButtonBundle {
-                        background_color: crate::ui::BUTTON_COLOR_NORMAL.into(),
-                        style: crate::ui::BUTTON_STYLE,
-                        ..default()
-                    },
+                    Button {},
+                    crate::ui::BUTTON_STYLE,
+                    // background_color: crate::ui::BUTTON_COLOR_NORMAL.into(),
                 ))
                 .with_children(|parent| {
-                    parent.spawn(TextBundle {
-                        text: Text {
-                            sections: vec![TextSection::new(
-                                "Play",
-                                TextStyle {
-                                    font_size: 35.0,
-                                    ..default()
-                                },
-                            )],
-                            justify: JustifyText::Center,
+                    parent.spawn((
+                        Text::new("Play"),
+                        TextFont {
+                            font_size: 35.0,
                             ..default()
                         },
-                        ..default()
-                    });
+                        TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                        TextLayout::new_with_justify(JustifyText::Center),
+                    ));
                 });
             parent
                 .spawn((
                     Name::new("Quit Button"),
                     QuitButton {},
                     UIButton {},
-                    ButtonBundle {
-                        background_color: crate::ui::BUTTON_COLOR_NORMAL.into(),
-                        style: crate::ui::BUTTON_STYLE,
-                        ..default()
-                    },
+                    Button {},
+                    crate::ui::BUTTON_STYLE,
+                    // background_color: crate::ui::BUTTON_COLOR_NORMAL.into(),
                 ))
                 .with_children(|parent| {
-                    parent.spawn(TextBundle {
-                        text: Text {
-                            sections: vec![TextSection::new(
-                                "Quit",
-                                TextStyle {
-                                    font_size: 35.0,
-                                    ..default()
-                                },
-                            )],
-                            justify: JustifyText::Center,
+                    parent.spawn((
+                        Text::new("Quit"),
+                        TextFont {
+                            font_size: 35.0,
                             ..default()
                         },
-                        ..default()
-                    });
+                        TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                        TextLayout::new_with_justify(JustifyText::Center),
+                    ));
                 });
         })
         .id()

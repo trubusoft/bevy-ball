@@ -1,16 +1,16 @@
 use bevy::app::App;
 use bevy::prelude::{
-    ButtonInput, Component, EventReader, in_state, info, IntoSystemConfigs, KeyCode, NextState,
-    OnEnter, OnExit, Plugin, Res, ResMut, State, States, Update,
+    in_state, info, AppExtStates, ButtonInput, Component, EventReader, IntoSystemConfigs, KeyCode,
+    NextState, OnEnter, OnExit, Plugin, Res, ResMut, State, States, Update,
 };
 
-use crate::ApplicationState;
 use crate::game::enemy::EnemyPlugin;
 use crate::game::high_score::HighScorePlugin;
 use crate::game::movement::MovementPlugin;
 use crate::game::player::{CollidedWithEnemy, PlayerPlugin};
 use crate::game::score::ScorePlugin;
 use crate::game::star::StarPlugin;
+use crate::ApplicationState;
 
 pub mod enemy;
 pub mod high_score;

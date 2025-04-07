@@ -1,8 +1,8 @@
 use bevy::app::{App, AppExit, Plugin, PostUpdate, Startup, Update};
 use bevy::input::ButtonInput;
 use bevy::prelude::{
-    Camera2dBundle, Commands, Component, default, Entity, EventReader, EventWriter, info, KeyCode,
-    NextState, Query, Res, ResMut, State, States, Window, With,
+    default, info, AppExtStates, Camera2dBundle, Commands, Component, Entity, EventReader,
+    EventWriter, KeyCode, NextState, Query, Res, ResMut, State, States, Window, With,
 };
 use bevy::window::PrimaryWindow;
 
@@ -62,7 +62,7 @@ pub fn exit_on_escape(
     mut event_writter: EventWriter<AppExit>,
 ) {
     if keyboard_input.pressed(KeyCode::Escape) {
-        event_writter.send(AppExit);
+        event_writter.send(AppExit::Success);
     }
 }
 

@@ -1,15 +1,15 @@
 use bevy::app::{App, AppExit};
 use bevy::prelude::{
-    AlignItems, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, default, DespawnRecursiveExt,
-    Display, Entity, EventWriter, FlexDirection, in_state, info, Interaction,
-    IntoSystemConfigs, JustifyContent, JustifyText, Name, NextState, NodeBundle, OnEnter, OnExit,
-    Plugin, PositionType, Query, ResMut, Style, Text, TextBundle, TextSection, TextStyle, Update,
-    Val, With, ZIndex,
+    default, in_state, info, AlignItems, BuildChildren, Button, ButtonBundle, Changed, ChildBuild,
+    Color, Commands, Component, DespawnRecursiveExt, Display, Entity, EventWriter, FlexDirection,
+    Interaction, IntoSystemConfigs, JustifyContent, JustifyText, Name, NextState, Node, NodeBundle,
+    OnEnter, OnExit, Plugin, PositionType, Query, ResMut, Text, TextBundle, TextColor, TextFont,
+    TextLayout, Update, Val, With, ZIndex,
 };
 
-use crate::ApplicationState;
 use crate::game::GameState;
-use crate::ui::{BUTTON_COLOR_NORMAL, BUTTON_STYLE, UIButton};
+use crate::ui::{UIButton, BUTTON_COLOR_NORMAL, BUTTON_STYLE};
+use crate::ApplicationState;
 
 pub struct PauseMenuPlugin;
 
@@ -63,7 +63,7 @@ pub fn on_quit_button_pressed(
 ) {
     for interaction in query.iter() {
         if *interaction == Interaction::Pressed {
-            event_writer.send(AppExit);
+            event_writer.send(AppExit::Success);
         }
     }
 }
@@ -97,8 +97,8 @@ pub struct QuitButton {}
 
 pub const PAUSE_MENU_BACKGROUND_COLOR: Color = Color::rgba(0.25, 0.25, 0.25, 0.5);
 
-pub const PAUSE_MENU_STYLE: Style = {
-    let mut style = Style::DEFAULT;
+pub const PAUSE_MENU_STYLE: Node = {
+    let mut style = Node::DEFAULT;
     style.position_type = PositionType::Absolute; // Needed to display separately from HUD.
     style.display = Display::Flex; // Hidden by Default
     style.justify_content = JustifyContent::Center;
@@ -108,8 +108,8 @@ pub const PAUSE_MENU_STYLE: Style = {
     style
 };
 
-pub const PAUSE_MENU_CONTAINER_STYLE: Style = {
-    let mut style = Style::DEFAULT;
+pub const PAUSE_MENU_CONTAINER_STYLE: Node = {
+    let mut style = Node::DEFAULT;
     style.display = Display::Flex;
     style.flex_direction = FlexDirection::Column;
     style.justify_content = JustifyContent::Center;
@@ -121,124 +121,90 @@ pub const PAUSE_MENU_CONTAINER_STYLE: Style = {
     style
 };
 
-pub fn get_title_text_style() -> TextStyle {
-    TextStyle {
-        font_size: 64.0,
-        color: Color::rgb(1.0, 1.0, 1.0),
-        ..default()
-    }
-}
-
-pub fn get_button_text_style() -> TextStyle {
-    TextStyle {
-        font_size: 32.0,
-        color: Color::rgb(1.0, 1.0, 1.0),
-        ..default()
-    }
-}
-
 pub fn build_pause_menu(commands: &mut Commands) -> Entity {
     let pause_menu_entity = commands
         .spawn((
             Name::new("Pause Menu"),
             PauseMenu {},
-            NodeBundle {
-                style: PAUSE_MENU_STYLE,
-                z_index: ZIndex::Local(1), // UI Z-Index | https://github.com/bevyengine/bevy/blob/latest/examples/ui/z_index.rs
-                ..default()
-            },
+            PAUSE_MENU_STYLE,
+            // z_index: ZIndex::Local(1), // UI Z-Index | https://github.com/bevyengine/bevy/blob/latest/examples/ui/z_index.rs
         ))
         .with_children(|parent| {
             parent
-                .spawn(NodeBundle {
-                    style: PAUSE_MENU_CONTAINER_STYLE,
-                    background_color: PAUSE_MENU_BACKGROUND_COLOR.into(),
-                    ..default()
-                })
+                .spawn((
+                    PAUSE_MENU_CONTAINER_STYLE,
+                    // background_color: crate::ui::pause_menu::PAUSE_MENU_BACKGROUND_COLOR.into(),
+                ))
                 .with_children(|parent| {
                     // Title
-                    parent.spawn(TextBundle {
-                        text: Text {
-                            sections: vec![TextSection::new("Pause Menu", get_title_text_style())],
-                            justify: JustifyText::Center,
+                    parent.spawn((
+                        Text::new("Pause menu"),
+                        TextFont {
+                            font_size: 64.0,
                             ..default()
                         },
-                        ..default()
-                    });
+                        TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                        TextLayout::new_with_justify(JustifyText::Center),
+                    ));
                     // Resume Button
                     parent
                         .spawn((
-                            ButtonBundle {
-                                style: BUTTON_STYLE,
-                                background_color: BUTTON_COLOR_NORMAL.into(),
-                                ..default()
-                            },
+                            Button {},
+                            BUTTON_STYLE,
+                            // background_color: crate::ui::BUTTON_COLOR_NORMAL.into(),
                             ResumeButton {},
                             UIButton {},
                         ))
                         .with_children(|parent| {
-                            parent.spawn(TextBundle {
-                                style: Style { ..default() },
-                                text: Text {
-                                    sections: vec![TextSection::new(
-                                        "Resume",
-                                        get_button_text_style(),
-                                    )],
-                                    justify: JustifyText::Center,
+                            parent.spawn((
+                                Text::new("Resume"),
+                                TextFont {
+                                    font_size: 32.0,
                                     ..default()
                                 },
-                                ..default()
-                            });
+                                TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                                TextLayout::new_with_justify(JustifyText::Center),
+                            ));
                         });
                     // Main Menu Button
                     parent
                         .spawn((
-                            ButtonBundle {
-                                style: BUTTON_STYLE,
-                                background_color: BUTTON_COLOR_NORMAL.into(),
-                                ..default()
-                            },
+                            Button {},
+                            BUTTON_STYLE,
+                            // background_color: crate::ui::BUTTON_COLOR_NORMAL.into(),
                             MainMenuButton {},
                             UIButton {},
                         ))
                         .with_children(|parent| {
-                            parent.spawn(TextBundle {
-                                style: Style { ..default() },
-                                text: Text {
-                                    sections: vec![TextSection::new(
-                                        "Main Menu",
-                                        get_button_text_style(),
-                                    )],
-                                    justify: JustifyText::Center,
+                            parent.spawn((
+                                Text::new("Main Menu"),
+                                TextFont {
+                                    font_size: 32.0,
                                     ..default()
                                 },
-                                ..default()
-                            });
+                                TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                                TextLayout::new_with_justify(JustifyText::Center),
+                            ));
                         });
                     // Quit Button
                     parent
                         .spawn((
-                            ButtonBundle {
-                                style: BUTTON_STYLE,
-                                background_color: BUTTON_COLOR_NORMAL.into(),
-                                ..default()
-                            },
+                            Button {},
+                            BUTTON_STYLE,
+                            // background_color: crate::ui::BUTTON_COLOR_NORMAL.into(),
                             QuitButton {},
                             UIButton {},
                         ))
                         .with_children(|parent| {
-                            parent.spawn(TextBundle {
-                                style: Style { ..default() },
-                                text: Text {
-                                    sections: vec![TextSection::new(
-                                        "Quit",
-                                        get_button_text_style(),
-                                    )],
-                                    justify: JustifyText::Center,
+                            parent.spawn((
+                                Text::new("Quit"),
+                                TextFont {
+                                    font_size: 32.0,
                                     ..default()
                                 },
-                                ..default()
-                            });
+                                TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                                TextLayout::new_with_justify(JustifyText::Center),
+                            ));
                         });
                 });
         })

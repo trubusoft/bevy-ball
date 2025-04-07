@@ -1,15 +1,15 @@
 use bevy::math::Vec3;
 use bevy::prelude::{
-    App, AssetServer, Bundle, Commands, Component, default, Entity, in_state, IntoSystemConfigs,
-    Name, OnEnter, OnExit, Plugin, Query, Res, ResMut, Resource, SpriteBundle, Time, Timer,
+    in_state, App, AssetServer, Bundle, Commands, Component, Entity, IntoSystemConfigs, Name,
+    OnEnter, OnExit, Plugin, Query, Res, ResMut, Resource, Sprite, SpriteBundle, Time, Timer,
     TimerMode, Transform, Update, Window, With,
 };
 use bevy::window::PrimaryWindow;
 
-use crate::{ApplicationState, ScheduleDespawn};
 use crate::asset_handler::AssetHandler;
 use crate::game::{Confined, GameState, Size};
 use crate::helpers::{AudioHelper, RandomHelper};
+use crate::{ApplicationState, ScheduleDespawn};
 
 pub struct EnemyPlugin;
 
@@ -59,7 +59,7 @@ impl EnemyBundle {
     pub fn at_randomized_location(
         window: &Window,
         asset_handler: &Res<AssetHandler>,
-    ) -> (Name, Enemy, Confined, Size, SpriteBundle) {
+    ) -> (Name, Enemy, Confined, Size, Sprite, Transform) {
         let random_x = RandomHelper::random_f32() * window.width();
         let random_y = RandomHelper::random_f32() * window.height();
 
@@ -70,11 +70,8 @@ impl EnemyBundle {
             },
             Confined {},
             Size { value: ENEMY_SIZE },
-            SpriteBundle {
-                transform: Transform::from_xyz(random_x, random_y, 0.0),
-                texture: asset_handler.enemy_texture.clone(),
-                ..default()
-            },
+            Sprite::from_image(asset_handler.enemy_texture.clone()),
+            Transform::from_xyz(random_x, random_y, 0.0),
         )
     }
 }
@@ -107,7 +104,7 @@ pub fn spawn_initial_enemies(
 pub fn enemy_movement(mut enemy_query: Query<(&mut Transform, &Enemy)>, time: Res<Time>) {
     for (mut enemy_transform, enemy) in enemy_query.iter_mut() {
         let enemy_direction = enemy.direction;
-        enemy_transform.translation += enemy_direction * ENEMY_SPEED * time.delta_seconds();
+        enemy_transform.translation += enemy_direction * ENEMY_SPEED * time.delta_secs();
     }
 }
 

@@ -1,16 +1,16 @@
 use bevy::app::AppExit;
 use bevy::prelude::{
-    AlignItems, App, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, default,
-    DespawnRecursiveExt, Display, Entity, EventWriter, FlexDirection, in_state, Interaction,
-    IntoSystemConfigs, JustifyContent, JustifyText, NextState, NodeBundle, OnEnter, OnExit, Plugin,
-    PositionType, Query, Res, ResMut, Style, Text, TextBundle, TextSection, TextStyle, Update, Val,
-    With, ZIndex,
+    default, in_state, AlignItems, App, BuildChildren, Button, Changed, ChildBuild, Color,
+    Commands, Component, DespawnRecursiveExt, Display, Entity, EventWriter, FlexDirection,
+    Interaction, IntoSystemConfigs, JustifyContent, JustifyText, NextState, Node, OnEnter, OnExit,
+    Plugin, PositionType, Query, Res, ResMut, Text, TextColor, TextFont, TextLayout, Update, Val,
+    With,
 };
 
-use crate::ApplicationState;
-use crate::game::GameState;
 use crate::game::high_score::HighScore;
+use crate::game::GameState;
 use crate::ui::UIButton;
+use crate::ApplicationState;
 
 pub struct GameOverMenuPlugin;
 
@@ -62,7 +62,7 @@ pub fn on_quit_button_pressed(
 ) {
     for interaction in query.iter() {
         if *interaction == Interaction::Pressed {
-            event_writer.send(AppExit);
+            event_writer.send(AppExit::Success);
         }
     }
 }
@@ -71,8 +71,8 @@ pub const BACKGROUND_COLOR: Color = Color::rgba(0.25, 0.25, 0.25, 0.5);
 
 pub const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 
-pub const GAME_OVER_MENU_STYLE: Style = {
-    let mut style = Style::DEFAULT;
+pub const GAME_OVER_MENU_STYLE: Node = {
+    let mut style = Node::DEFAULT;
     style.position_type = PositionType::Absolute; // Needed to display separately from HUD.
     style.display = Display::Flex; // Hidden by Default
     style.justify_content = JustifyContent::Center;
@@ -82,8 +82,8 @@ pub const GAME_OVER_MENU_STYLE: Style = {
     style
 };
 
-pub const GAME_OVER_MENU_CONTAINER_STYLE: Style = {
-    let mut style = Style::DEFAULT;
+pub const GAME_OVER_MENU_CONTAINER_STYLE: Node = {
+    let mut style = Node::DEFAULT;
     style.display = Display::Flex;
     style.flex_direction = FlexDirection::Column;
     style.justify_content = JustifyContent::Center;
@@ -95,38 +95,14 @@ pub const GAME_OVER_MENU_CONTAINER_STYLE: Style = {
     style
 };
 
-pub const BUTTON_STYLE: Style = {
-    let mut style = Style::DEFAULT;
+pub const BUTTON_STYLE: Node = {
+    let mut style = Node::DEFAULT;
     style.width = Val::Px(200.0);
     style.height = Val::Px(80.0);
     style.justify_content = JustifyContent::Center;
     style.align_items = AlignItems::Center;
     style
 };
-
-pub fn get_title_text_style() -> TextStyle {
-    TextStyle {
-        font_size: 64.0,
-        color: Color::rgb(1.0, 1.0, 1.0),
-        ..default()
-    }
-}
-
-pub fn get_final_score_text_style() -> TextStyle {
-    TextStyle {
-        font_size: 48.0,
-        color: Color::rgb(1.0, 1.0, 1.0),
-        ..default()
-    }
-}
-
-pub fn get_button_text_style() -> TextStyle {
-    TextStyle {
-        font_size: 32.0,
-        color: Color::rgb(1.0, 1.0, 1.0),
-        ..default()
-    }
-}
 
 #[derive(Component)]
 pub struct GameOverMenu {}
@@ -170,120 +146,100 @@ pub fn despawn_game_over_menu(
 
 pub fn build_game_over_menu(commands: &mut Commands, final_score: i32) -> Entity {
     let game_over_menu_entity = commands
-        .spawn((
-            NodeBundle {
-                style: GAME_OVER_MENU_STYLE,
-                z_index: ZIndex::Local(2), // UI Z-Index | https://github.com/bevyengine/bevy/blob/latest/examples/ui/z_index.rs
-                ..default()
-            },
-            GameOverMenu {},
-        ))
+        .spawn((GAME_OVER_MENU_STYLE, GameOverMenu {}))
         .with_children(|parent| {
             parent
-                .spawn(NodeBundle {
-                    style: GAME_OVER_MENU_CONTAINER_STYLE,
-                    background_color: BACKGROUND_COLOR.into(),
-                    ..default()
-                })
+                .spawn(GAME_OVER_MENU_CONTAINER_STYLE)
                 .with_children(|parent| {
                     // Title
-                    parent.spawn(TextBundle {
-                        text: Text {
-                            sections: vec![TextSection::new("Game Over", get_title_text_style())],
-                            justify: JustifyText::Center,
+                    parent.spawn((
+                        Text::new("Game Over"),
+                        TextFont {
+                            font_size: 64.0,
                             ..default()
                         },
-                        ..default()
-                    });
+                        TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                        TextLayout::new_with_justify(JustifyText::Center),
+                    ));
                     // Final Score Text
                     parent.spawn((
-                        TextBundle {
-                            text: Text {
-                                sections: vec![TextSection::new(
-                                    format!("Final Score: {}", final_score.to_string()),
-                                    get_final_score_text_style(),
-                                )],
-                                justify: JustifyText::Center,
-                                ..default()
-                            },
+                        Text::new(format!("Final Score: {}", final_score.to_string())),
+                        TextFont {
+                            font_size: 48.0,
                             ..default()
                         },
+                        TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                        TextLayout::new_with_justify(JustifyText::Center),
                         FinalScoreText {},
                     ));
                     // Restart Button
                     parent
                         .spawn((
-                            ButtonBundle {
-                                style: BUTTON_STYLE,
-                                background_color: NORMAL_BUTTON.into(),
-                                ..default()
-                            },
+                            Button {},
+                            // ButtonBundle {
+                            //     style: BUTTON_STYLE,
+                            //     background_color: NORMAL_BUTTON.into(),
+                            //     ..default()
+                            // },
                             RestartButton {},
                             UIButton {},
                         ))
                         .with_children(|parent| {
-                            parent.spawn(TextBundle {
-                                style: Style { ..default() },
-                                text: Text {
-                                    sections: vec![TextSection::new(
-                                        "Restart",
-                                        get_button_text_style(),
-                                    )],
-                                    justify: JustifyText::Center,
+                            parent.spawn((
+                                Text::new("Restart"),
+                                TextFont {
+                                    font_size: 32.0,
                                     ..default()
                                 },
-                                ..default()
-                            });
+                                TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                                TextLayout::new_with_justify(JustifyText::Center),
+                            ));
                         });
                     // Main Menu Button
                     parent
                         .spawn((
-                            ButtonBundle {
-                                style: BUTTON_STYLE,
-                                background_color: NORMAL_BUTTON.into(),
-                                ..default()
-                            },
+                            Button {},
+                            // ButtonBundle {
+                            //     style: BUTTON_STYLE,
+                            //     background_color: NORMAL_BUTTON.into(),
+                            //     ..default()
+                            // },
                             MainMenuButton {},
                             UIButton {},
                         ))
                         .with_children(|parent| {
-                            parent.spawn(TextBundle {
-                                style: Style { ..default() },
-                                text: Text {
-                                    sections: vec![TextSection::new(
-                                        "Main Menu",
-                                        get_button_text_style(),
-                                    )],
-                                    justify: JustifyText::Center,
+                            parent.spawn((
+                                Text::new("Main Menu"),
+                                TextFont {
+                                    font_size: 32.0,
                                     ..default()
                                 },
-                                ..default()
-                            });
+                                TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                                TextLayout::new_with_justify(JustifyText::Center),
+                            ));
                         });
                     // Quit Button
                     parent
                         .spawn((
-                            ButtonBundle {
-                                style: BUTTON_STYLE,
-                                background_color: NORMAL_BUTTON.into(),
-                                ..default()
-                            },
+                            Button {},
+                            // ButtonBundle {
+                            //     style: BUTTON_STYLE,
+                            //     background_color: NORMAL_BUTTON.into(),
+                            //     ..default()
+                            // },
                             QuitButton {},
                             UIButton {},
                         ))
                         .with_children(|parent| {
-                            parent.spawn(TextBundle {
-                                style: Style { ..default() },
-                                text: Text {
-                                    sections: vec![TextSection::new(
-                                        "Quit",
-                                        get_button_text_style(),
-                                    )],
-                                    justify: JustifyText::Center,
+                            parent.spawn((
+                                Text::new("Quit"),
+                                TextFont {
+                                    font_size: 32.0,
                                     ..default()
                                 },
-                                ..default()
-                            });
+                                TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                                TextLayout::new_with_justify(JustifyText::Center),
+                            ));
                         });
                 });
         })
